@@ -1,4 +1,4 @@
-shaderlab
-=========
+Shader Lab
+==========
 
-A place to play around with WebGL shaders.
+The place to play around with WebGL shaders.
