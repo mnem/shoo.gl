@@ -1,0 +1,10 @@
+{
+  "name": "shader-lab",
+  "version": "0.0.0",
+  "dependencies": {
+    "threejs": "",
+    "zepto": ">=1.1",
+    "ace-builds": "b2f8bf1e745250596afea5b39c70b94421af906d",
+    "stats.js": ""
+  }
+}
