@@ -12,3 +12,6 @@ gem "wdm", "~> 0.1.0", :platforms => [:mswin, :mingw]
 
 gem "middleman-imageoptim", "~> 0.1.3"
 
+gem "middleman-minify-html"
+
+gem "middleman-deploy"

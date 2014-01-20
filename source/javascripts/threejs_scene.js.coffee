@@ -1,6 +1,7 @@
 #= require threejs/build/three.min
 #= require zepto/zepto.min
 #= require stats.js/build/stats.min.js
+#= require event_debounce
 
 class @ThreejsScene
   constructor: (elem_root) ->
@@ -21,6 +22,16 @@ class @ThreejsScene
     @renderer = new THREE.WebGLRenderer()
     @renderer.setSize( width, height )
     $(@elem_root).append( @renderer.domElement )
+
+    @resize_debounce = new EventDebounce($(window), 'resize', @handle_resize, 250)
+
+  handle_resize: (e) =>
+    width = $(@elem_root).width()
+    height = $(@elem_root).height()
+
+    @camera.aspect = width / height
+    @camera.updateProjectionMatrix()
+    @renderer.setSize( width, height )
 
   create_basic_scene: () ->
     geometry = new THREE.CubeGeometry(1,1,1)

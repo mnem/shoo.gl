@@ -10,6 +10,17 @@ body {
   top: 0px;
 }
 
+#view-threejs {
+  background-color: black;
+  color: white;
+}
+
+#view-variables {
+  position: absolute;
+  background-color: black;
+  color: white;
+}
+
 .full {
   margin: 0;
   padding: 0;
@@ -18,7 +29,7 @@ body {
 }
 
 .top-left {
-  margin: 0 0.5px 0.5px 0;
+  margin: 0 1px 1px 0;
   padding: 0;
   position: absolute;
   top: 0;
@@ -29,7 +40,7 @@ body {
 }
 
 .top-right {
-  margin: 0 0 0.5px 0.5px;
+  margin: 0 0 1px 1px;
   padding: 0;
   position: absolute;
   top: 0;
@@ -40,7 +51,7 @@ body {
 }
 
 .bottom-left {
-  margin: 0.5px 0.5px 0 0;
+  margin: 1px 1px 0 0;
   padding: 0;
   position: absolute;
   top: 50%;
@@ -51,7 +62,7 @@ body {
 }
 
 .bottom-right {
-  margin: 0.5px 0 0 0.5px;
+  margin: 1px 0 0 1px;
   padding: 0;
   position: absolute;
   top: 50%;
