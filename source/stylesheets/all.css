@@ -1,0 +1,62 @@
+@charset "utf-8";
+
+body {
+  background-color: #555651;
+}
+
+#stats {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+.full {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.top-left {
+  margin: 0 0.5px 0.5px 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 50%;
+  right: 50%;
+  background-color: white;
+}
+
+.top-right {
+  margin: 0 0 0.5px 0.5px;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  bottom: 50%;
+  right: 0;
+  background-color: white;
+}
+
+.bottom-left {
+  margin: 0.5px 0.5px 0 0;
+  padding: 0;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  bottom: 0;
+  right: 50%;
+  background-color: white;
+}
+
+.bottom-right {
+  margin: 0.5px 0 0 0.5px;
+  padding: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  bottom: 0;
+  right: 0;
+  background-color: white;
+}

@@ -14,4 +14,17 @@ results
 npm-debug.log
 node_modules
 
-jam
+# Ignore bundler config
+/.bundle
+
+# Ignore the build directory
+/build
+
+# Ignore Sass' cache
+/.sass-cache
+
+# Ignore .DS_store file
+.DS_Store
+
+# Ignore bower install packages
+bower_components/
