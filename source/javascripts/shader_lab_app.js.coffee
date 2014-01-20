@@ -49,6 +49,10 @@ class @ShaderLabApp
     @editor_fragment = @make_editor(@elem_editor_fragment)
     @editor_fragment.setValue(@default_fragment, -1)
 
+  scene_resize: (e) ->
+    console.log "Foo"
+    # console.log "Now I'm #{$(@elem_view_threejs).width()}x#{$(@elem_view_threejs).height()}"
+
   create_scene: () ->
     @threejs_scene = new ThreejsScene(@elem_view_threejs)
 
