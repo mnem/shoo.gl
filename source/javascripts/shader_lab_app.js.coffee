@@ -4,20 +4,10 @@
 #= require ace-builds/src-min/mode-glsl
 #= require ace-builds/src-min/theme-monokai
 #= require threejs_scene
+#= require event_debounce
 
 class @ShaderLabApp
   constructor: () ->
-    @default_vertex   = """
-                        void main() {
-                          gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-                        }
-                        """
-
-    @default_fragment = """
-                        void main() {
-                          gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-                        }
-                        """
 
   bind_to_page: () ->
     @elem_editor_vertex = $('#editor-vertex')[0]
@@ -44,10 +34,26 @@ class @ShaderLabApp
 
   create_editors: () ->
     @editor_vertex = @make_editor(@elem_editor_vertex)
-    @editor_vertex.setValue(@default_vertex, -1)
+    @editor_vertex.setValue(@threejs_scene.get_vertex_source(), -1)
+    @vertex_source_debounce = new EventDebounce(@editor_vertex, 'change', @handle_vertex_source_change, 1000)
 
     @editor_fragment = @make_editor(@elem_editor_fragment)
-    @editor_fragment.setValue(@default_fragment, -1)
+    @editor_fragment.setValue(@threejs_scene.get_fragment_source(), -1)
+    @fragment_source_debounce = new EventDebounce(@editor_fragment, 'change', @handle_fragment_source_change, 1000)
+
+  handle_vertex_source_change: (e) =>
+    console.log "handle_vertex_source_change"
+    shader_parameters =
+      vertexShader: @editor_vertex.getValue()
+      fragmentShader: @editor_fragment.getValue()
+    @threejs_scene.update_shader(shader_parameters)
+
+  handle_fragment_source_change: (e) =>
+    console.log "handle_fragment_source_change"
+    shader_parameters =
+      vertexShader: @editor_vertex.getValue()
+      fragmentShader: @editor_fragment.getValue()
+    @threejs_scene.update_shader(shader_parameters)
 
   create_scene: () ->
     @threejs_scene = new ThreejsScene(@elem_view_threejs)
@@ -57,8 +63,8 @@ class @ShaderLabApp
 
   start: () ->
     @bind_to_page()
-    @create_editors()
     @create_scene()
+    @create_editors()
     @create_variables()
 
     # Start the scene rendering

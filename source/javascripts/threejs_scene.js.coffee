@@ -3,6 +3,21 @@
 #= require stats.js/build/stats.min.js
 #= require event_debounce
 
+default_vertex_source =
+"""
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}
+"""
+
+default_fragment_source =
+"""
+void main() {
+  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+"""
+
+
 class @ThreejsScene
   constructor: (elem_root) ->
     @elem_root = elem_root
@@ -33,20 +48,56 @@ class @ThreejsScene
     @camera.updateProjectionMatrix()
     @renderer.setSize( width, height )
 
+  update_shader: (shader_parameters) ->
+    try
+      new_material = new THREE.ShaderMaterial(shader_parameters)
+      @mesh.material = new_material
+      @shader_material = new_material
+    catch e
+      console.log "Whee!", e
+      @mesh.material = @shader_material
+
+    # console.log "update_shader", @shader_material
+    # for k, v of shader_parameters
+    #   console.log "  #{k}", v
+    #   @shader_material[k] = v
+
+  get_vertex_source: () ->
+    return @shader_material.vertexShader
+
+  get_fragment_source: () ->
+    return @shader_material.fragmentShader
+
   create_basic_scene: () ->
-    geometry = new THREE.CubeGeometry(1,1,1)
-    material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
-    @cube = new THREE.Mesh( geometry, material )
-    @scene.add( @cube )
+    shader_parameters =
+      vertexShader: default_vertex_source
+      fragmentShader: default_fragment_source
+    @shader_material = new THREE.ShaderMaterial(shader_parameters)
 
-    @camera.position.z = 5
+    @geometry = new THREE.CubeGeometry(1,1,1)
 
-  render: () =>
+    @mesh = new THREE.Mesh( @geometry, @shader_material )
+    @scene.add( @mesh )
+
+    @camera.position.z = 1.5
+
+  render: (timestamp) =>
     @stats.begin()
 
+    # Work out our time step. No
+    # smoothing or max step size for
+    # the moment
+    if @last_timestamp?
+        time_step = (timestamp - @last_timestamp) / 1000
+    else
+        time_step = 1/60
+
+    @last_timestamp = timestamp
+
+    # Do some animation
     requestAnimationFrame(@render);
-    @cube.rotation.x += 0.1;
-    @cube.rotation.y += 0.1;
+    @mesh.rotation.x += 2 * time_step;
+    @mesh.rotation.y += 2 * time_step;
     @renderer.render(@scene, @camera);
 
     @stats.end()
