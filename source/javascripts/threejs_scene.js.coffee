@@ -2,6 +2,7 @@
 #= require zepto/zepto.min
 #= require stats.js/build/stats.min.js
 #= require event_debounce
+#= require glsl_validator
 
 default_vertex_source =
 """
@@ -37,6 +38,8 @@ class @ThreejsScene
     @renderer = new THREE.WebGLRenderer()
     @renderer.setSize( width, height )
     $(@elem_root).append( @renderer.domElement )
+
+    @validator = new GLSLValidator(@renderer.getContext())
 
     @resize_debounce = new EventDebounce($(window), 'resize', @handle_resize, 250)
 
