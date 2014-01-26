@@ -4,7 +4,7 @@ class @GLSLValidator
     @gl = gl_context
 
   validate_vertex: (source, row_error_number_adjustment = 0) ->
-    @_validate_source(source, @gl.VERTEX_SHADER)
+    @_validate_source(source, @gl.VERTEX_SHADER, row_error_number_adjustment)
 
   validate_fragment: (source, row_error_number_adjustment = 0) ->
     @_validate_source(source, @gl.FRAGMENT_SHADER, row_error_number_adjustment)
