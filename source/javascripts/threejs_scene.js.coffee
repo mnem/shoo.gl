@@ -18,15 +18,14 @@ void main() {
 }
 """
 
-
 class @ThreejsScene
-  constructor: (elem_root) ->
-    @elem_root = elem_root
-
+  constructor: (@elem_root, @animate_camera = true, @lights = true, @animate_lights) ->
     @stats = new Stats()
-
     @init_root()
     @create_basic_scene()
+
+    @on_validation_error = @_default_error_handler
+    @on_validation_success = @_default_error_handler
 
   init_root: () ->
     width = $(@elem_root).width()
@@ -52,18 +51,71 @@ class @ThreejsScene
     @renderer.setSize( width, height )
 
   update_shader: (shader_parameters) ->
-    try
+    if @_validate_shader_parameters(shader_parameters)
       new_material = new THREE.ShaderMaterial(shader_parameters)
       @mesh.material = new_material
       @shader_material = new_material
-    catch e
-      console.log "Whee!", e
-      @mesh.material = @shader_material
 
-    # console.log "update_shader", @shader_material
-    # for k, v of shader_parameters
-    #   console.log "  #{k}", v
-    #   @shader_material[k] = v
+  _default_error_handler: (e) =>
+    console.error 'threejs_scene error', e
+
+  _default_success_handler: (e) =>
+    # Nothing
+
+  _validate_shader_parameters: (parameters) ->
+    valid = true
+    valid &&= @_validate_vertex_shader(parameters.vertexShader)
+    valid &&= @_validate_fragment_shader(parameters.fragmentShader)
+    # TODO: Validate other shizz
+
+    if valid then @on_validation_success({})
+
+    return valid
+
+  _validate_vertex_shader: (source) ->
+    # Extracted from three.js buildProgram
+    prefix = [
+      "precision " + @renderer.getPrecision() + " float;",
+      "precision " + @renderer.getPrecision() + " int;",
+
+      "uniform mat4 modelMatrix;",
+      "uniform mat4 modelViewMatrix;",
+      "uniform mat4 projectionMatrix;",
+      "uniform mat4 viewMatrix;",
+      "uniform mat3 normalMatrix;",
+      "uniform vec3 cameraPosition;",
+
+      "attribute vec3 position;",
+      "attribute vec3 normal;",
+      "attribute vec2 uv;",
+      "attribute vec2 uv2;",
+
+      "",
+    ]
+    source = prefix.join('\n') + source
+    [success, errors] = @validator.validate_vertex(source, -prefix.length)
+
+    if not success then @on_validation_error({type: 'vertex', errors: errors})
+
+    return success
+
+  _validate_fragment_shader: (source) ->
+    # Extracted from three.js buildProgram
+    prefix = [
+      "precision " + @renderer.getPrecision() + " float;",
+      "precision " + @renderer.getPrecision() + " int;",
+
+      "uniform mat4 viewMatrix;",
+      "uniform vec3 cameraPosition;",
+
+      "",
+    ]
+    source = prefix.join('\n') + source
+    [success, errors] = @validator.validate_fragment(source, -prefix.length)
+
+    if not success then @on_validation_error({type: 'fragment', errors: errors})
+
+    return success
 
   get_vertex_source: () ->
     return @shader_material.vertexShader
