@@ -45,8 +45,22 @@ html, body {
   border-color: rgba(95,181,253,0.2);
 }
 
+.output-toggles {
+  position: absolute;
+  z-index: 100;
+  width: 50%;
+  bottom: 50%;
+}
+
+#threejs-tile label {
+  float: right;
+  margin: 3px;
+  padding: 2px;
+  color: #fff;
+  background-color: rgba(100,100,100,0.5);
+}
+
 #stats {
   position: absolute;
-  // right: 0;
   bottom: 0;
 }

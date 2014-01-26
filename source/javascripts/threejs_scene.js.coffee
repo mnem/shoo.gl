@@ -21,7 +21,7 @@ void main() {
 """
 
 class @ThreejsScene
-  constructor: (@elem_root, @animate_camera = true, @lights = true, @animate_lights) ->
+  constructor: (@elem_root, @animate = true, @light = true) ->
     @_stats = new Stats()
     @_init_root()
     @_create_basic_scene()
@@ -58,8 +58,11 @@ class @ThreejsScene
 
     # Do some animation
     requestAnimationFrame(@render);
-    @mesh.rotation.x += 2 * time_step;
-    @mesh.rotation.y += 2 * time_step;
+
+    if @animate
+      @mesh.rotation.x += 2 * time_step;
+      @mesh.rotation.y += 2 * time_step;
+
     @renderer.render(@scene, @camera);
 
     @_stats.end()
