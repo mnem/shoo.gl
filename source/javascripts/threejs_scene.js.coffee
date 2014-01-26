@@ -6,7 +6,11 @@
 
 default_vertex_source =
 """
+//uniform vec3 light;
+//varying vec3 vNormal;
+
 void main() {
+//  vNormal = normal;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 }
 
@@ -14,8 +18,14 @@ void main() {
 
 default_fragment_source =
 """
+//uniform vec3 light;
+//varying vec3 vNormal;
+
 void main() {
-  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+//  vec3 light_norm = normalize(light);
+//  float dProd = max(0.0, dot(vNormal, light));
+//  gl_FragColor = vec4(dProd, 0.0, 0.0, 1.0);
+  gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
 }
 
 """
@@ -23,6 +33,9 @@ void main() {
 class @ThreejsScene
   constructor: (@elem_root, @animate = true, @light = true) ->
     @_stats = new Stats()
+
+    @_uniforms = {}
+
     @_init_root()
     @_create_basic_scene()
 
@@ -39,6 +52,7 @@ class @ThreejsScene
 
   update_shader: (shader_parameters) ->
     if @_validate_shader_parameters(shader_parameters)
+      shader_parameters.uniforms = @_uniforms
       new_material = new THREE.ShaderMaterial(shader_parameters)
       @mesh.material = new_material
       @shader_material = new_material
@@ -59,13 +73,18 @@ class @ThreejsScene
     # Do some animation
     requestAnimationFrame(@render);
 
-    if @animate
-      @mesh.rotation.x += 2 * time_step;
-      @mesh.rotation.y += 2 * time_step;
+    @_update(time_step)
 
     @renderer.render(@scene, @camera);
 
     @_stats.end()
+
+  _update: (time_step) ->
+    @_directional_light.visible = @light
+
+    if @animate
+      @mesh.rotation.x += 2 * time_step;
+      @mesh.rotation.y += 2 * time_step;
 
   _init_root: () ->
     width = $(@elem_root).width()
@@ -152,14 +171,31 @@ class @ThreejsScene
     return success
 
   _create_basic_scene: () ->
+    # Cameras!
+    @camera.position.z = 2
+
+    # Light!
+    @_directional_light = new THREE.DirectionalLight( 0xffffff, 0.75 )
+    @_directional_light.position.set(1,1,2)
+    @scene.add( @_directional_light )
+    @_directional_light.visible = @light
+
+    @_uniforms =
+      light =
+        type: 'v3'
+        value: THREE.Vector3(1,1,2)
+
+    # Models!
     shader_parameters =
+      uniforms: @_uniforms
       vertexShader: default_vertex_source
       fragmentShader: default_fragment_source
     @shader_material = new THREE.ShaderMaterial(shader_parameters)
+    # @shader_material = new THREE.MeshPhongMaterial()
 
     @geometry = new THREE.CubeGeometry(1,1,1)
+    @geometry.computeFaceNormals()
+    @geometry.computeVertexNormals()
 
     @mesh = new THREE.Mesh( @geometry, @shader_material )
     @scene.add( @mesh )
-
-    @camera.position.z = 1.5
