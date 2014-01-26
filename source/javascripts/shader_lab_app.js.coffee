@@ -73,7 +73,16 @@ class @ShaderLabApp
     @editor_vertex.getSession().clearAnnotations()
     @editor_fragment.getSession().clearAnnotations()
 
+  _connect_checkbox: (checkbox, target, property_name) ->
+    checkbox.prop('checked', target[property_name])
+    checkbox.on 'change', (e) =>
+      target[property_name] = checkbox.prop('checked')
+
   _create_scene: () ->
     @threejs_scene = new ThreejsScene(@elem_view_threejs)
+
+    @_connect_checkbox($('#threejs-tile #animate input[type=checkbox]'), @threejs_scene, 'animate')
+    @_connect_checkbox($('#threejs-tile #light input[type=checkbox]'), @threejs_scene, 'light')
+
     @threejs_scene.on_validation_error = @_show_errors
     @threejs_scene.on_validation_success = @_clear_errors

@@ -6,7 +6,11 @@
 
 default_vertex_source =
 """
+//uniform vec3 light;
+//varying vec3 vNormal;
+
 void main() {
+//  vNormal = normal;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 }
 
@@ -14,24 +18,75 @@ void main() {
 
 default_fragment_source =
 """
+//uniform vec3 light;
+//varying vec3 vNormal;
+
 void main() {
-  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+//  vec3 light_norm = normalize(light);
+//  float dProd = max(0.0, dot(vNormal, light));
+//  gl_FragColor = vec4(dProd, 0.0, 0.0, 1.0);
+  gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
 }
 
 """
 
 class @ThreejsScene
-  constructor: (@elem_root, @animate_camera = true, @lights = true, @animate_lights) ->
-    @stats = new Stats()
-    @init_root()
-    @create_basic_scene()
+  constructor: (@elem_root, @animate = true, @light = true) ->
+    @_stats = new Stats()
 
-    $(@elem_root).append(@stats.domElement)
+    @_uniforms = {}
+
+    @_init_root()
+    @_create_basic_scene()
+
+    $(@elem_root).append(@_stats.domElement)
 
     @on_validation_error = @_default_error_handler
     @on_validation_success = @_default_error_handler
 
-  init_root: () ->
+  get_vertex_source: () ->
+    return @shader_material.vertexShader
+
+  get_fragment_source: () ->
+    return @shader_material.fragmentShader
+
+  update_shader: (shader_parameters) ->
+    if @_validate_shader_parameters(shader_parameters)
+      shader_parameters.uniforms = @_uniforms
+      new_material = new THREE.ShaderMaterial(shader_parameters)
+      @mesh.material = new_material
+      @shader_material = new_material
+
+  render: (timestamp) =>
+    @_stats.begin()
+
+    # Work out our time step. No
+    # smoothing or max step size for
+    # the moment
+    if @last_timestamp?
+        time_step = (timestamp - @last_timestamp) / 1000
+    else
+        time_step = 1/60
+
+    @last_timestamp = timestamp
+
+    # Do some animation
+    requestAnimationFrame(@render);
+
+    @_update(time_step)
+
+    @renderer.render(@scene, @camera);
+
+    @_stats.end()
+
+  _update: (time_step) ->
+    @_directional_light.visible = @light
+
+    if @animate
+      @mesh.rotation.x += 2 * time_step;
+      @mesh.rotation.y += 2 * time_step;
+
+  _init_root: () ->
     width = $(@elem_root).width()
     height = $(@elem_root).height()
     console.log "Init ThreejsScene. Size: #{width}x#{height}"
@@ -44,21 +99,15 @@ class @ThreejsScene
 
     @validator = new GLSLValidator(@renderer.getContext())
 
-    @resize_debounce = new EventDebounce($(window), 'resize', @handle_resize, 250)
+    @resize_debounce = new EventDebounce($(window), 'resize', @_handle_resize, 250)
 
-  handle_resize: (e) =>
+  _handle_resize: (e) =>
     width = $(@elem_root).width()
     height = $(@elem_root).height()
 
     @camera.aspect = width / height
     @camera.updateProjectionMatrix()
     @renderer.setSize( width, height )
-
-  update_shader: (shader_parameters) ->
-    if @_validate_shader_parameters(shader_parameters)
-      new_material = new THREE.ShaderMaterial(shader_parameters)
-      @mesh.material = new_material
-      @shader_material = new_material
 
   _default_error_handler: (e) =>
     console.error 'threejs_scene error', e
@@ -121,42 +170,32 @@ class @ThreejsScene
 
     return success
 
-  get_vertex_source: () ->
-    return @shader_material.vertexShader
+  _create_basic_scene: () ->
+    # Cameras!
+    @camera.position.z = 2
 
-  get_fragment_source: () ->
-    return @shader_material.fragmentShader
+    # Light!
+    @_directional_light = new THREE.DirectionalLight( 0xffffff, 0.75 )
+    @_directional_light.position.set(1,1,2)
+    @scene.add( @_directional_light )
+    @_directional_light.visible = @light
 
-  create_basic_scene: () ->
+    @_uniforms =
+      light =
+        type: 'v3'
+        value: THREE.Vector3(1,1,2)
+
+    # Models!
     shader_parameters =
+      uniforms: @_uniforms
       vertexShader: default_vertex_source
       fragmentShader: default_fragment_source
     @shader_material = new THREE.ShaderMaterial(shader_parameters)
+    # @shader_material = new THREE.MeshPhongMaterial()
 
     @geometry = new THREE.CubeGeometry(1,1,1)
+    @geometry.computeFaceNormals()
+    @geometry.computeVertexNormals()
 
     @mesh = new THREE.Mesh( @geometry, @shader_material )
     @scene.add( @mesh )
-
-    @camera.position.z = 1.5
-
-  render: (timestamp) =>
-    @stats.begin()
-
-    # Work out our time step. No
-    # smoothing or max step size for
-    # the moment
-    if @last_timestamp?
-        time_step = (timestamp - @last_timestamp) / 1000
-    else
-        time_step = 1/60
-
-    @last_timestamp = timestamp
-
-    # Do some animation
-    requestAnimationFrame(@render);
-    @mesh.rotation.x += 2 * time_step;
-    @mesh.rotation.y += 2 * time_step;
-    @renderer.render(@scene, @camera);
-
-    @stats.end()
