@@ -2,6 +2,8 @@
 # the following line to use "https"
 source 'http://rubygems.org'
 
+gem "uglifier", "~>2.4.0"
+
 gem "middleman", "~>3.2.1"
 
 # Live-reloading plugin
