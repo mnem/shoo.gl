@@ -83,7 +83,7 @@ class @ShaderLabApp
       "uniform mat4 viewMatrix;",
       "uniform vec3 cameraPosition;",
     ]
-    source = @editor_fragment.getValue()
+    source = prefix.join('\n') + @editor_fragment.getValue()
     [success, errors] = @threejs_scene.validator.validate_fragment(source, -prefix.length)
     if success
       @editor_fragment.getSession().clearAnnotations()
