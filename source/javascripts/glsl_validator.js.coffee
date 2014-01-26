@@ -7,7 +7,7 @@ class @GLSLValidator
     @_validate_source(source, @gl.VERTEX_SHADER)
 
   validate_fragment: (source, row_error_number_adjustment = 0) ->
-    @_validate_source(source, @gl.FRAGMENT_SHADER)
+    @_validate_source(source, @gl.FRAGMENT_SHADER, row_error_number_adjustment)
 
   _validate_source: (source, type, row_error_number_adjustment = 0) ->
     shader = @gl.createShader(type)
@@ -37,7 +37,7 @@ class @GLSLValidator
         [string, type, maybe_column, row, text] = matcher.exec(line)
         error =
           type: type.trim().toLowerCase()
-          row: new Number(row.trim()) - 1 + row_error_number_adjustment
+          row: new Number(row.trim()) + row_error_number_adjustment
           column: new Number(maybe_column.trim())
           text: text
         errors.push(error)

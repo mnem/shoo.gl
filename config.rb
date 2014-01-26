@@ -35,9 +35,6 @@
 # Automatic image dimensions on image_tag helper
 # activate :automatic_image_sizes
 
-# Reload the browser automatically whenever files change
-activate :livereload
-
 # Methods defined in the helpers block are available in templates
 # helpers do
 #   def some_helper
@@ -46,37 +43,26 @@ activate :livereload
 # end
 
 set :css_dir, 'stylesheets'
-
 set :js_dir, 'javascripts'
-
 set :images_dir, 'images'
 
 # Build-specific configuration
 configure :build do
   sprockets.append_path File.join root, 'bower_components'
 
-  # For example, change the Compass output style for deployment
   activate :minify_css
-
-  # Minify Javascript on build
   activate :minify_javascript
-
   activate :minify_html
-
-  # Enable cache buster
   activate :asset_hash
-
   activate :imageoptim
-
-  # Use relative URLs
   activate :relative_assets
-
-  # Or use a different image path
-  # set :http_prefix, "/Content/images/"
 end
 
-ready do
+configure :development do
   sprockets.append_path File.join root, 'bower_components'
+
+  set :debug_assets, true
+  activate :livereload
 end
 
 activate :deploy do |deploy|
@@ -85,4 +71,8 @@ activate :deploy do |deploy|
   # deploy.remote   = "custom-remote" # remote name or git url, default: origin
   # deploy.branch   = "custom-branch" # default: gh-pages
   # deploy.strategy = :submodule      # commit strategy: can be :force_push or :submodule, default: :force_push
+end
+
+ready do
+  sprockets.append_path File.join root, 'bower_components'
 end
