@@ -14,6 +14,9 @@ class @ShaderLabApp
     @_create_scene()
     @_create_editors()
 
+    @editor_fragment.focus()
+    @editor_fragment.gotoLine(@editor_fragment.getSession().getLength())
+
     # Start the scene rendering
     @threejs_scene.render()
 
@@ -72,7 +75,5 @@ class @ShaderLabApp
 
   _create_scene: () ->
     @threejs_scene = new ThreejsScene(@elem_view_threejs)
-    $(@elem_view_variables).append( @threejs_scene.stats.domElement )
-
     @threejs_scene.on_validation_error = @_show_errors
     @threejs_scene.on_validation_success = @_clear_errors

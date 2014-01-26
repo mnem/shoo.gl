@@ -9,6 +9,7 @@ default_vertex_source =
 void main() {
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 }
+
 """
 
 default_fragment_source =
@@ -16,6 +17,7 @@ default_fragment_source =
 void main() {
   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
+
 """
 
 class @ThreejsScene
@@ -23,6 +25,8 @@ class @ThreejsScene
     @stats = new Stats()
     @init_root()
     @create_basic_scene()
+
+    $(@elem_root).append(@stats.domElement)
 
     @on_validation_error = @_default_error_handler
     @on_validation_success = @_default_error_handler

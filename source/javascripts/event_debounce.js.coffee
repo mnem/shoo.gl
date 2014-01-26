@@ -7,7 +7,7 @@ class @EventDebounce
   constructor: (source, event, callback, debounce_time) ->
     @debounce_time = debounce_time
     @callback = callback
-    source.on event, @observe_event
+    source.on(event, @observe_event)
 
   observe_event: (e) =>
     if @observe_event_timer?
