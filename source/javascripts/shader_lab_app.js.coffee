@@ -17,8 +17,39 @@ class @ShaderLabApp
     @editor_fragment.focus()
     @editor_fragment.gotoLine(@editor_fragment.getSession().getLength())
 
+    @_load_from_url()
+
+    window.onpopstate = @_on_pop_state
+
     # Start the scene rendering
     @threejs_scene.render()
+
+  _on_pop_state: (e) =>
+    @_restore_state(history.state)
+
+  _load_from_url: () ->
+    if location.search? and location.search.length > 1
+      maybe_data_string = location.search.substr(1)
+      maybe_data_string = decodeURIComponent(maybe_data_string)
+      try
+        maybe_data = JSON.parse(maybe_data_string)
+        @_restore_state(maybe_data)
+      catch e
+        console.error "Odd URL data. Could not decode.", e
+
+  _restore_state: (state) ->
+    if not state?
+      return
+
+    if state.vs?
+      @editor_vertex.setValue(state.vs, -1)
+      if state.vsp?
+        @editor_vertex.moveCursorToPosition(state.vsp)
+
+    if state.fs?
+      @editor_fragment.setValue(state.fs, -1)
+      if state.fsp?
+        @editor_fragment.moveCursorToPosition(state.fsp)
 
   _bind_to_page: () ->
     @elem_editor_vertex = $('#editor-vertex')[0]
@@ -29,11 +60,11 @@ class @ShaderLabApp
   _create_editors: () ->
     @editor_vertex = @_make_editor(@elem_editor_vertex)
     @editor_vertex.setValue(@threejs_scene.get_vertex_source(), -1)
-    @vertex_source_debounce = new EventDebounce(@editor_vertex, 'change', @_handle_source_change, 250)
+    @vertex_source_debounce = new EventDebounce(@editor_vertex, 'change', @_handle_source_change, 500)
 
     @editor_fragment = @_make_editor(@elem_editor_fragment)
     @editor_fragment.setValue(@threejs_scene.get_fragment_source(), -1)
-    @fragment_source_debounce = new EventDebounce(@editor_fragment, 'change', @_handle_source_change, 250)
+    @fragment_source_debounce = new EventDebounce(@editor_fragment, 'change', @_handle_source_change, 500)
 
   _make_editor: (element) ->
     editor = ace.edit element
@@ -73,6 +104,8 @@ class @ShaderLabApp
     @editor_vertex.getSession().clearAnnotations()
     @editor_fragment.getSession().clearAnnotations()
 
+    @_push_state()
+
   _connect_threejs_property_checkbox: (property_name) ->
     checkbox = $("#threejs-tile ##{property_name} input[type=checkbox]")
     checkbox.prop('checked', @threejs_scene[property_name])
@@ -88,3 +121,14 @@ class @ShaderLabApp
 
     @threejs_scene.on_validation_error = @_show_errors
     @threejs_scene.on_validation_success = @_clear_errors
+
+  _push_state: () ->
+    data =
+      vs: @editor_vertex.getValue()
+      vsp: @editor_vertex.getCursorPosition()
+      fs: @editor_fragment.getValue()
+      fsp: @editor_fragment.getCursorPosition()
+
+    title = "ShaderLab - #{(new Date()).toLocaleString()}"
+    url = "?#{encodeURIComponent(JSON.stringify(data))}"
+    history.pushState(data, title, url)
