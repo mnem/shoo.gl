@@ -31,6 +31,8 @@ varying vec3 vViewPosition;
 void main() {
   gl_FragColor = vec4(vec3(0.9), 1.0);
 
+  // Simplistic lighting, based around the phong code
+  // in three.js, but without the fancy bits
   vec4 lightPosition = viewMatrix * vec4( lightWorldPosition, 1.0 );
   vec3 lightVector = lightPosition.xyz + vViewPosition;
   lightVector = normalize( lightVector );
@@ -38,6 +40,63 @@ void main() {
   float lightIntensity = dot( normalize(vNormal), lightVector );
 
   gl_FragColor.xyz = gl_FragColor.xyz * lightIntensity;
+}
+
+"""
+
+simple_toon_fragment_source =
+"""
+uniform vec3 lightWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+// If enabled performs a rubbish cell shade effect
+#define TOONIFY 1
+
+// If enabled retains maximum intensity highlights
+// reducing the rest to 2 tone
+#define TOONIFY_2TONE_WITH_HIGHLIGHTS 1
+
+#if TOONIFY_2TONE_WITH_HIGHLIGHTS
+// If retaining highlights, we want to have
+// more shades to pick the highlight from. The
+// larger the number, the finer the highlights.
+#define TOONIFIY_SHADES 32.0
+#else
+// If not showing highlights, sets the
+// number of levels the colour bands used. The
+// larger the number, the more detail is retained
+#define TOONIFIY_SHADES 3.0
+#endif // TOONIFY_2TONE_WITH_HIGHLIGHTS
+
+void main() {
+  // Simplistic lighting, based around the phong code
+  // in three.js, but without the fancy bits
+  vec4 lightPosition = viewMatrix * vec4( lightWorldPosition, 1.0 );
+  vec3 lightVector = lightPosition.xyz + vViewPosition;
+  lightVector = normalize( lightVector );
+
+  float lightIntensity = dot( normalize(vNormal), lightVector );
+
+#if TOONIFY
+  // Quantize
+  float levels = TOONIFIY_SHADES;
+  lightIntensity *= levels;
+  lightIntensity = floor(lightIntensity);
+
+#if TOONIFY_2TONE_WITH_HIGHLIGHTS
+  if ( lightIntensity < levels / 2.0 ) {
+    lightIntensity = levels / 6.0;
+  } else if ( lightIntensity < levels - 1.0 ) {
+    lightIntensity = levels / 2.0 +  levels / 8.0;
+  }
+#endif // TOONIFY_2TONE_WITH_HIGHLIGHTS
+
+  lightIntensity /= levels - 0.5;
+#endif // TOONIFY
+
+  vec3 color =  vec3(0.0, 1.0, 0.1);
+  gl_FragColor = vec4(lightIntensity * color, 1.0);
 }
 
 """
