@@ -6,32 +6,44 @@
 
 default_vertex_source =
 """
-//uniform vec3 light;
-//varying vec3 vNormal;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
 
 void main() {
-//  vNormal = normal;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+  vec3 transformedNormal = normalMatrix * normal;
+  vNormal = normalize(transformedNormal);
+
+  vec4 modelViewPosition;
+  modelViewPosition = modelViewMatrix * vec4( position, 1.0 );
+  vViewPosition = -modelViewPosition.xyz;
+
+  gl_Position = projectionMatrix * modelViewPosition;
 }
 
 """
 
 default_fragment_source =
 """
-//uniform vec3 light;
-//varying vec3 vNormal;
+uniform vec3 lightWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
 
 void main() {
-//  vec3 light_norm = normalize(light);
-//  float dProd = max(0.0, dot(vNormal, light));
-//  gl_FragColor = vec4(dProd, 0.0, 0.0, 1.0);
-  gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
+  gl_FragColor = vec4(vec3(0.9), 1.0);
+
+  vec4 lightPosition = viewMatrix * vec4( lightWorldPosition, 1.0 );
+  vec3 lightVector = lightPosition.xyz + vViewPosition;
+  lightVector = normalize( lightVector );
+
+  float lightIntensity = dot( normalize(vNormal), lightVector );
+
+  gl_FragColor.xyz = gl_FragColor.xyz * lightIntensity;
 }
 
 """
 
 class @ThreejsScene
-  constructor: (@elem_root, @animate = true, @light = true) ->
+  constructor: (@elem_root, @animate_model = true, @animate_light = false, @use_phong = false) ->
     @_stats = new Stats()
 
     @_uniforms = {}
@@ -54,7 +66,6 @@ class @ThreejsScene
     if @_validate_shader_parameters(shader_parameters)
       shader_parameters.uniforms = @_uniforms
       new_material = new THREE.ShaderMaterial(shader_parameters)
-      @mesh.material = new_material
       @shader_material = new_material
 
   render: (timestamp) =>
@@ -80,16 +91,26 @@ class @ThreejsScene
     @_stats.end()
 
   _update: (time_step) ->
-    @_directional_light.visible = @light
+    if @animate_light
+      @_light_holder.rotation.x -= 2 * time_step;
+      @_light_holder.rotation.y -= 2 * time_step;
+      @_uniforms.lightWorldPosition.value.setFromMatrixPosition(@_scene_light.matrixWorld)
 
-    if @animate
+    if @animate_model
       @mesh.rotation.x += 2 * time_step;
       @mesh.rotation.y += 2 * time_step;
+
+    # Update the material used
+    if @use_phong
+      material = @phong_material
+    else
+      material = @shader_material
+
+    @mesh.material = material unless @mesh.material == material
 
   _init_root: () ->
     width = $(@elem_root).width()
     height = $(@elem_root).height()
-    console.log "Init ThreejsScene. Size: #{width}x#{height}"
 
     @scene = new THREE.Scene()
     @camera = new THREE.PerspectiveCamera( 75, width / height, 0.1, 1000 )
@@ -175,15 +196,14 @@ class @ThreejsScene
     @camera.position.z = 2
 
     # Light!
-    @_directional_light = new THREE.DirectionalLight( 0xffffff, 0.75 )
-    @_directional_light.position.set(1,1,2)
-    @scene.add( @_directional_light )
-    @_directional_light.visible = @light
+    @_scene_light = new THREE.PointLight( 0xffffff, 0.75, 1000 )
+    @_scene_light.position.set(0,0,3)
 
+    # Uniforms!
     @_uniforms =
-      light =
+      lightWorldPosition :
         type: 'v3'
-        value: THREE.Vector3(1,1,2)
+        value: new THREE.Vector3().copy(@_scene_light.position)
 
     # Models!
     shader_parameters =
@@ -191,7 +211,8 @@ class @ThreejsScene
       vertexShader: default_vertex_source
       fragmentShader: default_fragment_source
     @shader_material = new THREE.ShaderMaterial(shader_parameters)
-    # @shader_material = new THREE.MeshPhongMaterial()
+
+    @phong_material = new THREE.MeshPhongMaterial()
 
     @geometry = new THREE.CubeGeometry(1,1,1)
     @geometry.computeFaceNormals()
@@ -199,3 +220,8 @@ class @ThreejsScene
 
     @mesh = new THREE.Mesh( @geometry, @shader_material )
     @scene.add( @mesh )
+
+    @_light_holder = new THREE.Object3D()
+    @_light_holder.add( @_scene_light )
+    @scene.add( @_light_holder )
+
