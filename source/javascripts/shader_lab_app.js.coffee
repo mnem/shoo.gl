@@ -51,6 +51,17 @@ class @ShaderLabApp
       if state.fsp?
         @editor_fragment.moveCursorToPosition(state.fsp)
 
+    if state.tv?
+      for k, v of state.tv
+        try
+          @threejs_scene[k] = v
+        catch e
+          if v == null then v = "null"
+          if k == null then k = "null"
+          console.error "Error restoring threejs scene setting '#{k}' to '#{v}'"
+
+    @_sync_threejs_property_ui_to_model()
+
   _bind_to_page: () ->
     @elem_editor_vertex = $('#editor-vertex')[0]
     @elem_editor_fragment = $('#editor-fragment')[0]
@@ -106,18 +117,22 @@ class @ShaderLabApp
 
     @_push_state()
 
-  _connect_threejs_property_checkbox: (property_name) ->
-    checkbox = $("#threejs-tile ##{property_name} input[type=checkbox]")
-    checkbox.prop('checked', @threejs_scene[property_name])
-    checkbox.on 'change', (e) =>
-      @threejs_scene[property_name] = checkbox.prop('checked')
+  _sync_threejs_property_ui_to_model: () ->
+    $("#threejs-tile input[type=checkbox]").each (i, item) =>
+      property_name = $(item).prop('id')
+      $(item).prop('checked', @threejs_scene[property_name])
+
+  _connect_threejs_properties_to_ui: () ->
+    $("#threejs-tile input[type=checkbox]").each (i, item) =>
+      property_name = $(item).prop('id')
+      $(item).on 'change', (e) =>
+        @threejs_scene[property_name] = $(item).prop('checked')
 
   _create_scene: () ->
     @threejs_scene = new ThreejsScene(@elem_view_threejs)
 
-    @_connect_threejs_property_checkbox('animate_model')
-    @_connect_threejs_property_checkbox('animate_light')
-    @_connect_threejs_property_checkbox('use_phong')
+    @_connect_threejs_properties_to_ui()
+    @_sync_threejs_property_ui_to_model()
 
     @threejs_scene.on_validation_error = @_show_errors
     @threejs_scene.on_validation_success = @_clear_errors
@@ -128,7 +143,19 @@ class @ShaderLabApp
       vsp: @editor_vertex.getCursorPosition()
       fs: @editor_fragment.getValue()
       fsp: @editor_fragment.getCursorPosition()
+      tv:
+        animate_light: @threejs_scene.animate_light
+        animate_model: @threejs_scene.animate_model
+        use_phong: @threejs_scene.use_phong
 
-    title = "ShaderLab - #{(new Date()).toLocaleString()}"
-    url = "?#{encodeURIComponent(JSON.stringify(data))}"
+    state = history.state
+    if state and state.vs == data.vs and data.fs == state.fs
+      return
+
+    now = new Date()
+    title = 'ShaderLab - ' + now.toLocaleString()
+
+    data_json_string = JSON.stringify(data)
+    url = '?' + encodeURIComponent(data_json_string)
+
     history.pushState(data, title, url)
