@@ -1,4 +1,5 @@
 #= require threejs/build/three.min
+#= require OrbitControls
 #= require zepto/zepto.min
 #= require stats.js/build/stats.min.js
 #= require event_debounce
@@ -37,7 +38,7 @@ void main() {
   vec3 lightVector = lightPosition.xyz + vViewPosition;
   lightVector = normalize( lightVector );
 
-  float lightIntensity = dot( normalize(vNormal), lightVector );
+  float lightIntensity = max(dot( normalize(vNormal), lightVector ), 0.2);
 
   gl_FragColor.xyz = gl_FragColor.xyz * lightIntensity;
 }
@@ -102,7 +103,14 @@ void main() {
 """
 
 class @ThreejsScene
-  constructor: (@elem_root, @animate_model = true, @animate_light = false, @use_phong = false) ->
+  constructor: (@elem_root,
+                @animate_camera = false,
+                @animate_light = false,
+                @use_phong = false,
+                @animate_model = true,
+                @clear_color = 0x000000) ->
+    @_cached_clear_color = ~@clear_color
+
     @_stats = new Stats()
 
     @_uniforms = {}
@@ -130,6 +138,9 @@ class @ThreejsScene
   render: (timestamp) =>
     @_stats.begin()
 
+    # Do some animation
+    requestAnimationFrame(@render);
+
     # Work out our time step. No
     # smoothing or max step size for
     # the moment
@@ -140,20 +151,25 @@ class @ThreejsScene
 
     @last_timestamp = timestamp
 
-    # Do some animation
-    requestAnimationFrame(@render);
-
     @_update(time_step)
+
+    @controls.update()
 
     @renderer.render(@scene, @camera);
 
     @_stats.end()
 
   _update: (time_step) ->
+    if @clear_color != @_cached_clear_color
+      @_cached_clear_color = @clear_color
+      @renderer.setClearColor(@clear_color, 1)
+
     if @animate_light
       @_light_holder.rotation.x -= 2 * time_step;
       @_light_holder.rotation.y -= 2 * time_step;
       @_uniforms.lightWorldPosition.value.setFromMatrixPosition(@_scene_light.matrixWorld)
+
+    @controls.autoRotate = @animate_camera
 
     if @animate_model
       @mesh.rotation.x += 2 * time_step;
@@ -284,3 +300,11 @@ class @ThreejsScene
     @_light_holder.add( @_scene_light )
     @scene.add( @_light_holder )
 
+    # Controls!
+    @controls = new THREE.OrbitControls( @camera );
+    @controls.minDistance = 2
+    @controls.maxDistance = 10
+    @controls.autoRotateSpeed = 10
+    @controls.noPan = true
+
+    @renderer.setClearColor(@clear_color, 1)
