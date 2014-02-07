@@ -26,10 +26,16 @@ title: Shader Lab
 <div class="tile">
   <div class="tile-header"><h1>Uniforms and Attributes</h1></div>
   <div id="view-variables" class="tile-inner-content">
-    <ul>
-      <li>a</li>
-      <li>b</li>
-      <li>c</li>
-    </ul>
+    <div id="models-selector">
+      <div id="models-grid">
+        <% data.models.each do |model| %>
+          <input type="radio" id="model-<%= model.id %>"
+                 <% if model == data.models.first %><%= 'checked="true"' %><% end %>
+                 name="model-group"/>
+          <label for="model-<%= model.id %>"
+                 style="background:url('images/model-thumb/<%= model.id %>.png');"></label>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>

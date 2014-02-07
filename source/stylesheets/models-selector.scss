@@ -1,0 +1,30 @@
+@mixin rounded($radius: 0.5em) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}
+
+div#models-grid {
+  @include rounded;
+  width: 320px;
+  background-color: white;
+  display: inline-block;
+}
+
+div#models-grid label {
+  margin: 0;
+  padding: 0;
+  width: 64px;
+  height: 64px;
+  background-size: 64px 64px !important;
+  float: left;
+  opacity: 0.1;
+}
+
+div#models-grid input:checked + label {
+  opacity: 1 !important;
+}
+
+div#models-grid input {
+  display: none;
+}
