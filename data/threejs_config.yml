@@ -1,0 +1,27 @@
+exposed_toggles:
+  -
+    id: animate_camera
+    name: Animate Camera
+    checked: yes
+  -
+    id: light_linked_to_camera
+    name: Link Light To Camera
+    checked: yes
+  -
+    id: use_phong
+    name: Use Phong
+    checked: no
+
+camera:
+  position:
+    x: 0
+    y: 0
+    z: 1.5
+  min_distance: 1
+  max_distance: 10
+  auto_rotate_speed: 10
+  prevent_pan: yes
+
+light:
+  color: 0xffffff
+  intensity: 0.75

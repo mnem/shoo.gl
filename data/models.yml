@@ -1,0 +1,63 @@
+-
+  id: cube
+  name: Cube
+  source:
+    description: Simple cube. Created in Blender 2.6. Created by David Wagner
+    url-info: http://noiseandheat.com
+    url-source: https://raw.github.com/mnem/shoo.gl/master/source-model/cube.blend
+-
+  id: sphere
+  name: Sphere
+  source:
+    description: Simple sphere. Created in Blender 2.6. Created by David Wagner
+    url-info: http://noiseandheat.com
+    url-source: https://raw.github.com/mnem/shoo.gl/master/source-model/sphere.blend
+-
+  id: cylinder
+  name: Cylinder
+  source:
+    description: Simple cylinder. Created in Blender 2.6. Created by David Wagner
+    url-info: http://noiseandheat.com
+    url-source: https://raw.github.com/mnem/shoo.gl/master/source-model/cylinder.blend
+-
+  id: torus
+  name: Torus
+  source:
+    description: Simple torus. Created in Blender 2.6. Created by David Wagner
+    url-info: http://noiseandheat.com
+    url-source: https://raw.github.com/mnem/shoo.gl/master/source-model/torus.blend
+-
+  id: grid
+  name: Grid
+  source:
+    description: Simple 1 sided grid. Created in Blender 2.6. Created by David Wagner
+    url-info: http://noiseandheat.com
+    url-source: https://raw.github.com/mnem/shoo.gl/master/source-model/grid.blend
+-
+  id: blender_suzanne
+  name: Blender Suzanne
+  source:
+    description: Blender Suzanne model. Created in Blender 2.6. Instantiated by David Wagner.
+    url-info: http://www.blender.org
+    url-source: https://raw.github.com/mnem/shoo.gl/master/source-model/blender_suzanne.blend
+-
+  id: stanford_bunny
+  name: Stanford Bunny
+  source:
+    description: Standford bunny. Imported in Blender 2.6 from PLY data provided by Standford and then decimated and hole filled. Twiddled by David Wagner from the Stanford original.
+    url-info: http://graphics.stanford.edu/data/3Dscanrep/
+    url-source: ftp://graphics.stanford.edu/pub/3Dscanrep/bunny.tar.gz
+-
+  id: stanford_armadillo
+  name: Standford Armadillo
+  source:
+    description: Standford armadillo. Imported in Blender 2.6 from PLY data provided by Standford and then decimated. Twiddled by David Wagner from the Stanford original.
+    url-info: http://graphics.stanford.edu/data/3Dscanrep/
+    url-source: ftp://graphics.stanford.edu/pub/3Dscanrep/armadillo/Armadillo.ply.gz
+-
+  id: utah_teapot
+  name: Utah Teapot
+  source:
+    description: The Utah teapot/Newell teapot. Imported in Blender 2.6 from obj provided in Khronos WebGL SDK and then smoothed. Twiddled by David Wagner.
+    url-info: http://en.wikipedia.org/wiki/Utah_teapot
+    url-source: https://www.khronos.org/registry/webgl/sdk/demos/webkit/resources/teapot.obj

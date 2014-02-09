@@ -46,6 +46,9 @@ set :css_dir, 'stylesheets'
 set :js_dir, 'javascripts'
 set :images_dir, 'images'
 
+# Lots of useful mixins
+activate :bourbon
+
 # Build-specific configuration
 configure :build do
   sprockets.append_path File.join root, 'bower_components'

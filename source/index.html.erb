@@ -10,11 +10,25 @@ title: Shader Lab
 <div id="threejs-tile" class="tile">
   <div class="tile-header"><h1>Output</h1></div>
   <div id="view-threejs" class="tile-inner-content"></div>
+  <div id="models-selector">
+    <div id="models-grid">
+      <% data.models.each do |model| %>
+        <input type="radio" id="model-<%= model.id %>"
+               <% if model == data.models.first %><%= 'checked="true"' %><% end %>
+               name="model-group"
+               data-model-id="<%= model.id %>"/>
+        <label for="model-<%= model.id %>"
+               style="background:url('images/models-thumb/<%= model.id %>.png');"></label>
+      <% end %>
+    </div>
+  </div>
   <div class="output-toggles">
-    <label><input id="animate_camera" type="checkbox" checked="false"/>Animate camera</label>
-    <label><input id="animate_model" type="checkbox" checked="false"/>Animate model</label>
-    <label><input id="animate_light" type="checkbox" checked="true"/>Animate light</label>
-    <label><input id="use_phong" type="checkbox" checked="true"/>No shader, use phong</label>
+    <% data.threejs_config.exposed_toggles.each do |attribute| %>
+      <label><input
+        id="<%= attribute.id %>"
+        <% if attribute.checked %><%= 'checked="true"' %><% end %>
+        type="checkbox"/><%= attribute.name %></label>
+    <% end %>
   </div>
 </div>
 
@@ -26,10 +40,10 @@ title: Shader Lab
 <div class="tile">
   <div class="tile-header"><h1>Uniforms and Attributes</h1></div>
   <div id="view-variables" class="tile-inner-content">
-    <ul>
-      <li>a</li>
-      <li>b</li>
-      <li>c</li>
-    </ul>
   </div>
 </div>
+
+<script type="text/javascript">
+  window.app_config = <%= data.app_config.to_json %>;
+  window.threejs_config = <%= data.threejs_config.to_json %>;
+</script>

@@ -17,3 +17,5 @@ gem "middleman-imageoptim", "~> 0.1.3"
 gem "middleman-minify-html"
 
 gem "middleman-deploy"
+
+gem "middleman-bourbon"

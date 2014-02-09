@@ -1,0 +1,64 @@
+
+@mixin rounded($radius: 0.5em) {
+  @include border-top-radius($radius);
+  @include border-bottom-radius($radius);
+  @include border-left-radius($radius);
+  @include border-right-radius($radius);
+}
+
+$models-icon-extent: 64px;
+$models-icon-margin: 2px;
+$models-icon-full-extent: $models-icon-margin + $models-icon-extent + $models-icon-margin;
+$models-expanded-icons-x: 3;
+$models-expanded-icons-y: 3;
+
+div#models-grid {
+  @include rounded;
+  position: absolute;
+  top: 0;
+  margin: 3px;
+  padding: 0px;
+  width: $models-icon-full-extent;
+  height: $models-icon-full-extent;
+  overflow: hidden;
+  z-index: 100;
+}
+
+div#models-grid:hover {
+  width: $models-icon-full-extent * $models-expanded-icons-x;
+  height: $models-icon-full-extent * $models-expanded-icons-y;
+}
+
+div#models-grid label {
+  margin: $models-icon-margin;
+  padding: 0;
+  width: $models-icon-extent;
+  height: $models-icon-extent;
+  background-size: $models-icon-extent $models-icon-extent !important;
+  float: left;
+  opacity: 0.4;
+  display: none;
+}
+
+div#models-grid:hover label {
+  display: block;
+}
+
+div#models-grid input:checked + label {
+  opacity: 0.5 !important;
+  display: block;
+  @include transition(opacity 5s ease-in);
+}
+
+div#models-grid:hover input:checked + label {
+  opacity: 1 !important;
+  @include transition(opacity 0.1s ease-in);
+}
+
+div#models-grid label:hover {
+  opacity: 0.75;
+}
+
+div#models-grid input {
+  display: none;
+}

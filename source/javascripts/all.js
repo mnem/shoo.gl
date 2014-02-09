@@ -1,4 +1,4 @@
-//= require shader_lab_app
+//= require app/shader_lab_app
 //= require zepto/zepto.min.js
 
 Zepto(function($){

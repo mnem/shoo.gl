@@ -1,10 +1,13 @@
 #= require zepto/zepto.min
+#
 #= require ace-builds/src-min/ace
 #= require ace-builds/src-min/ext-language_tools
 #= require ace-builds/src-min/mode-glsl
 #= require ace-builds/src-min/theme-monokai
-#= require threejs_scene
-#= require event_debounce
+#
+#= require scene/threejs_scene
+#= require util/event_debounce
+#
 
 class @ShaderLabApp
   constructor: () ->
@@ -60,7 +63,7 @@ class @ShaderLabApp
           if k == null then k = "null"
           console.error "Error restoring threejs scene setting '#{k}' to '#{v}'"
 
-    @_sync_threejs_property_ui_to_model()
+    @_sync_threejs_properties_to_ui()
 
   _bind_to_page: () ->
     @elem_editor_vertex = $('#editor-vertex')[0]
@@ -117,22 +120,36 @@ class @ShaderLabApp
 
     @_push_state()
 
-  _sync_threejs_property_ui_to_model: () ->
+  _sync_threejs_properties_to_ui: () ->
     $("#threejs-tile input[type=checkbox]").each (i, item) =>
       property_name = $(item).prop('id')
-      $(item).prop('checked', @threejs_scene[property_name])
+      $(item).prop('checked', !!@threejs_scene[property_name])
 
   _connect_threejs_properties_to_ui: () ->
+    # Hook up the global viewport toggles
     $("#threejs-tile input[type=checkbox]").each (i, item) =>
       property_name = $(item).prop('id')
+      @threejs_scene[property_name] = !!$(item).prop('checked')
       $(item).on 'change', (e) =>
         @threejs_scene[property_name] = $(item).prop('checked')
+    # Now the model selector
+    model_paths = []
+    $("#threejs-tile #models-selector input[type=radio]").each (i, item) =>
+      model_id = $(item).data('model-id')
+      model_path = "models/#{model_id}.js"
+      model_paths.push(model_path)
+      if !!$(item).prop('checked')
+        @threejs_scene.load_model(model_path)
+      $(item).on 'change', (e) =>
+        @threejs_scene.load_model(model_path)
+    if app_config.prefetch_models
+      @threejs_scene.warm_model_cache(model_paths)
 
   _create_scene: () ->
     @threejs_scene = new ThreejsScene(@elem_view_threejs)
 
     @_connect_threejs_properties_to_ui()
-    @_sync_threejs_property_ui_to_model()
+    @_sync_threejs_properties_to_ui()
 
     @threejs_scene.on_validation_error = @_show_errors
     @threejs_scene.on_validation_success = @_clear_errors
