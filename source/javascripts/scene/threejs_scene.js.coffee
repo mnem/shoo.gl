@@ -1,9 +1,13 @@
-#= require threejs/build/three.min
-#= require OrbitControls
-#= require zepto/zepto.min
+#= require threejs/build/three
 #= require stats.js/build/stats.min.js
-#= require event_debounce
-#= require glsl_validator
+#
+#= require zepto/zepto.min
+#
+#= require scene/camera/OrbitControls
+#= require scene/validator/glsl_validator
+#= require scene/fonts/helvetiker_regular.typeface
+#
+#= require util/event_debounce
 
 default_vertex_source =
 """
@@ -105,11 +109,16 @@ void main() {
 class @ThreejsScene
   constructor: (@elem_root,
                 @animate_camera = false,
-                @animate_light = false,
+                @light_linked_to_camera = true,
                 @use_phong = false,
-                @animate_model = true,
                 @clear_color = 0x000000) ->
     @_cached_clear_color = ~@clear_color
+
+    @_model_cache = {}
+    @_active_model = null
+
+    @_showing_loading_indicator = false
+    @_loading_indicator = null
 
     @_stats = new Stats()
 
@@ -159,21 +168,47 @@ class @ThreejsScene
 
     @_stats.end()
 
+  load_model: (model_path) ->
+    current_model = @_model_cache[@_active_model]
+    if current_model?
+      @scene.remove(current_model.container)
+
+    @_active_model = model_path
+    new_model = @_model_cache[@_active_model]
+
+    if not new_model?
+      new_model = @_fetch_model(model_path)
+
+    @scene.add(new_model.container)
+
+  warm_model_cache: (model_paths) ->
+    for model_path in model_paths
+      console.log "Prefetching model: ", model_path
+      @_fetch_model(model_path)
+
+  _fetch_model: (model_path) ->
+    new_model =
+      container: new THREE.Object3D()
+      mesh: null
+    @_model_cache[@_active_model] = new_model
+    loader = new THREE.JSONLoader();
+    loader.load model_path, (geometry) =>
+      new_model.mesh = new THREE.Mesh(geometry, @shader_material)
+      new_model.mesh.position.set(0, 0, 0)
+      new_model.container.add(new_model.mesh)
+
+    return new_model
+
   _update: (time_step) ->
     if @clear_color != @_cached_clear_color
       @_cached_clear_color = @clear_color
       @renderer.setClearColor(@clear_color, 1)
 
-    if @animate_light
-      @_light_holder.rotation.x -= 2 * time_step;
-      @_light_holder.rotation.y -= 2 * time_step;
+    if @light_linked_to_camera
+      @_scene_light.position.copy(@camera.position)
       @_uniforms.lightWorldPosition.value.setFromMatrixPosition(@_scene_light.matrixWorld)
 
     @controls.autoRotate = @animate_camera
-
-    if @animate_model
-      @mesh.rotation.x += 2 * time_step;
-      @mesh.rotation.y += 2 * time_step;
 
     # Update the material used
     if @use_phong
@@ -181,7 +216,17 @@ class @ThreejsScene
     else
       material = @shader_material
 
-    @mesh.material = material unless @mesh.material == material
+    mesh = @_loading_indicator
+    if @_model_cache[@_active_model]? and @_model_cache[@_active_model].mesh?
+      if @_showing_loading_indicator
+        @_showing_loading_indicator = false
+        @scene.remove(@_loading_indicator)
+      mesh = @_model_cache[@_active_model].mesh
+    else if not @_showing_loading_indicator
+      @_showing_loading_indicator = true
+      @scene.add(@_loading_indicator)
+
+    mesh.material = material if mesh.material != material
 
   _init_root: () ->
     width = $(@elem_root).width()
@@ -267,44 +312,50 @@ class @ThreejsScene
     return success
 
   _create_basic_scene: () ->
-    # Cameras!
-    @camera.position.z = 2
+    @renderer.setClearColor(@clear_color, 1)
 
-    # Light!
-    @_scene_light = new THREE.PointLight( 0xffffff, 0.75, 1000 )
-    @_scene_light.position.set(0,0,3)
+    @_create_basic_camera()
+    @_create_basic_lights()
+    @_create_basic_materials()
+    @_create_basic_meshes()
 
-    # Uniforms!
+  _create_basic_camera: () ->
+    cfg = threejs_config
+    @camera.position.set(cfg.camera.position.x, cfg.camera.position.y, cfg.camera.position.z)
+    @controls = new THREE.OrbitControls( @camera );
+    @controls.minDistance = cfg.camera.min_distance
+    @controls.maxDistance = cfg.camera.max_distance
+    @controls.autoRotateSpeed = cfg.camera.auto_rotate_speed
+    @controls.noPan = cfg.camera.prevent_pan
+
+  _create_basic_lights: () ->
+    cfg = threejs_config
+    @_scene_light = new THREE.DirectionalLight( cfg.light.color, cfg.light.intensity )
+    @_scene_light.position.copy(@camera.position)
+    @scene.add(@_scene_light)
+
+  _create_basic_materials: () ->
     @_uniforms =
       lightWorldPosition :
         type: 'v3'
         value: new THREE.Vector3().copy(@_scene_light.position)
 
-    # Models!
     shader_parameters =
       uniforms: @_uniforms
       vertexShader: default_vertex_source
       fragmentShader: default_fragment_source
     @shader_material = new THREE.ShaderMaterial(shader_parameters)
 
-    @phong_material = new THREE.MeshPhongMaterial()
+    @phong_material = new THREE.MeshPhongMaterial({color:0x50C8FF})
 
-    @geometry = new THREE.CubeGeometry(1,1,1)
-    @geometry.computeFaceNormals()
-    @geometry.computeVertexNormals()
-
-    @mesh = new THREE.Mesh( @geometry, @shader_material )
-    @scene.add( @mesh )
-
-    @_light_holder = new THREE.Object3D()
-    @_light_holder.add( @_scene_light )
-    @scene.add( @_light_holder )
-
-    # Controls!
-    @controls = new THREE.OrbitControls( @camera );
-    @controls.minDistance = 2
-    @controls.maxDistance = 10
-    @controls.autoRotateSpeed = 10
-    @controls.noPan = true
-
-    @renderer.setClearColor(@clear_color, 1)
+  _create_basic_meshes: () ->
+    options =
+      size: 0.25
+      height: 0.125
+      curveSegments: 2
+      font: "helvetiker"
+    geometry = new THREE.TextGeometry("Loading...", options)
+    geometry.computeBoundingBox();
+    offset = geometry.boundingBox.max.sub(geometry.boundingBox.min).multiplyScalar(-0.5)
+    @_loading_indicator = new THREE.Mesh( geometry, @shader_material )
+    @_loading_indicator.position.copy(offset)
