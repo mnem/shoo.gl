@@ -46,19 +46,18 @@ set :css_dir, 'stylesheets'
 set :js_dir, 'javascripts'
 set :images_dir, 'images'
 
-# Lots of useful mixins
-activate :bourbon
-
 # Build-specific configuration
 configure :build do
   sprockets.append_path File.join root, 'bower_components'
 
+  activate :bourbon
   activate :minify_css
-  activate :minify_javascript
+  activate :minify_javascript, :ignore => 'models/*'
   activate :minify_html
-  activate :asset_hash
+  activate :asset_hash, :ignore => 'models/*'
   activate :imageoptim
   activate :relative_assets
+  activate :gzip
 end
 
 configure :development do
@@ -66,6 +65,7 @@ configure :development do
 
   set :debug_assets, true
   activate :livereload
+  activate :bourbon
 end
 
 activate :deploy do |deploy|

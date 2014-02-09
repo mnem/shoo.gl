@@ -1,9 +1,10 @@
 #= require zepto/zepto.min
 #
 #= require ace-builds/src-min/ace
+#= require ace-builds/src-min/snippets/glsl
 #= require ace-builds/src-min/ext-language_tools
 #= require ace-builds/src-min/mode-glsl
-#= require ace-builds/src-min/theme-monokai
+#= require ace-builds/src-min/theme-vibrant_ink
 #
 #= require scene/threejs_scene
 #= require util/event_debounce
@@ -82,18 +83,20 @@ class @ShaderLabApp
 
   _make_editor: (element) ->
     editor = ace.edit element
-    editor.setTheme 'ace/theme/monokai'
+    editor.setTheme 'ace/theme/vibrant_ink'
 
     session = editor.getSession()
     session.setMode 'ace/mode/glsl'
     session.setTabSize 2
     session.setUseSoftTabs false
 
-    # options =
-    #   enableBasicAutocompletion: true
-    #   enableSnippets: true
+    ace.require 'ace/ext/language_tools'
 
-    # editor.setOptions options
+    options =
+      enableBasicAutocompletion: true
+      enableSnippets: true
+
+    editor.setOptions options
 
     return editor
 

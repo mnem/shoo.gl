@@ -27,19 +27,27 @@ class @GLSLValidator
   _parse_errors: (log, row_error_number_adjustment) ->
     errors = []
 
-    # Example error line:
-    #    ERROR: 0:2: 'projectionMatrix' : undeclared identifier
-    matcher = new RegExp('^([^:]*):([^:]*):([^:]*):(.*)')
-    lines = log.split('\n')
-    for line in lines
-      error_parts = matcher.exec(line)
-      if error_parts? and error_parts.length == 5
-        [string, type, maybe_column, row, text] = matcher.exec(line)
-        error =
-          type: type.trim().toLowerCase()
-          row: new Number(row.trim()) + row_error_number_adjustment
-          column: new Number(maybe_column.trim())
-          text: text
-        errors.push(error)
+    if log?
+      # Example error line:
+      #    ERROR: 0:2: 'projectionMatrix' : undeclared identifier
+      matcher = new RegExp('^([^:]*):([^:]*):([^:]*):(.*)')
+      lines = log.split('\n')
+      for line in lines
+        error_parts = matcher.exec(line)
+        if error_parts? and error_parts.length == 5
+          [string, type, maybe_column, row, text] = matcher.exec(line)
+          error =
+            type: type.trim().toLowerCase()
+            row: new Number(row.trim()) + row_error_number_adjustment
+            column: new Number(maybe_column.trim())
+            text: text
+          errors.push(error)
+    else
+      error =
+        type: "error"
+        row: 1 + row_error_number_adjustment
+        column: 1
+        text: "Something went so wrong WebGL won't even tell me. It's in a huff."
+      errors.push(error)
 
     return errors
