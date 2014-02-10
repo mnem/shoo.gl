@@ -3,11 +3,11 @@
 #
 #= require zepto/zepto.min
 #
-#= require scene/camera/OrbitControls
-#= require scene/validator/glsl_validator
-#= require scene/fonts/helvetiker_regular.typeface
+#= require shoogl/scene/camera/OrbitControls
+#= require shoogl/scene/validator/glsl_validator
+#= require shoogl/scene/fonts/helvetiker_regular.typeface
 #
-#= require util/event_debounce
+#= require shoogl/util/event_debounce
 
 default_vertex_source =
 """
@@ -106,7 +106,10 @@ void main() {
 
 """
 
-class @ThreejsScene
+EventDebounce = shoogl.util.EventDebounce
+GLSLValidator = shoogl.scene.validator.GLSLValidator
+
+class namespace('shoogl.scene').ThreejsScene
   constructor: (@elem_root,
                 @animate_camera = false,
                 @light_linked_to_camera = true,

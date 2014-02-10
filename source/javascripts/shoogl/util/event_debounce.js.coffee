@@ -3,7 +3,8 @@
 # the the last event is observed
 # before actually triggering the
 # callback.
-class @EventDebounce
+
+class namespace('shoogl.util').EventDebounce
   constructor: (source, event, callback, debounce_time) ->
     @debounce_time = debounce_time
     @callback = callback
