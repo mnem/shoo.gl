@@ -4,110 +4,16 @@
 #= require zepto/zepto.min
 #
 #= require shoogl/scene/camera/OrbitControls
-#= require shoogl/scene/validator/glsl_validator
 #= require shoogl/scene/fonts/helvetiker_regular.typeface
+#= require shoogl/scene/validator/glsl_validator
+#= require shoogl/scene/default_shaders
 #
 #= require shoogl/util/event_debounce
-
-default_vertex_source =
-"""
-varying vec3 vNormal;
-varying vec3 vViewPosition;
-
-void main() {
-  vec3 transformedNormal = normalMatrix * normal;
-  vNormal = normalize(transformedNormal);
-
-  vec4 modelViewPosition;
-  modelViewPosition = modelViewMatrix * vec4( position, 1.0 );
-  vViewPosition = -modelViewPosition.xyz;
-
-  gl_Position = projectionMatrix * modelViewPosition;
-}
-
-"""
-
-default_fragment_source =
-"""
-uniform vec3 lightWorldPosition;
-varying vec3 vNormal;
-varying vec3 vViewPosition;
-
-void main() {
-  gl_FragColor = vec4(vec3(0.9), 1.0);
-
-  // Simplistic lighting, based around the phong code
-  // in three.js, but without the fancy bits
-  vec4 lightPosition = viewMatrix * vec4( lightWorldPosition, 1.0 );
-  vec3 lightVector = lightPosition.xyz + vViewPosition;
-  lightVector = normalize( lightVector );
-
-  float lightIntensity = max(dot( normalize(vNormal), lightVector ), 0.2);
-
-  gl_FragColor.xyz = gl_FragColor.xyz * lightIntensity;
-}
-
-"""
-
-simple_toon_fragment_source =
-"""
-uniform vec3 lightWorldPosition;
-varying vec3 vNormal;
-varying vec3 vViewPosition;
-
-// If enabled performs a rubbish cell shade effect
-#define TOONIFY 1
-
-// If enabled retains maximum intensity highlights
-// reducing the rest to 2 tone
-#define TOONIFY_2TONE_WITH_HIGHLIGHTS 1
-
-#if TOONIFY_2TONE_WITH_HIGHLIGHTS
-// If retaining highlights, we want to have
-// more shades to pick the highlight from. The
-// larger the number, the finer the highlights.
-#define TOONIFIY_SHADES 32.0
-#else
-// If not showing highlights, sets the
-// number of levels the colour bands used. The
-// larger the number, the more detail is retained
-#define TOONIFIY_SHADES 3.0
-#endif // TOONIFY_2TONE_WITH_HIGHLIGHTS
-
-void main() {
-  // Simplistic lighting, based around the phong code
-  // in three.js, but without the fancy bits
-  vec4 lightPosition = viewMatrix * vec4( lightWorldPosition, 1.0 );
-  vec3 lightVector = lightPosition.xyz + vViewPosition;
-  lightVector = normalize( lightVector );
-
-  float lightIntensity = dot( normalize(vNormal), lightVector );
-
-#if TOONIFY
-  // Quantize
-  float levels = TOONIFIY_SHADES;
-  lightIntensity *= levels;
-  lightIntensity = floor(lightIntensity);
-
-#if TOONIFY_2TONE_WITH_HIGHLIGHTS
-  if ( lightIntensity < levels / 2.0 ) {
-    lightIntensity = levels / 6.0;
-  } else if ( lightIntensity < levels - 1.0 ) {
-    lightIntensity = levels / 2.0 +  levels / 8.0;
-  }
-#endif // TOONIFY_2TONE_WITH_HIGHLIGHTS
-
-  lightIntensity /= levels - 0.5;
-#endif // TOONIFY
-
-  vec3 color =  vec3(0.0, 1.0, 0.1);
-  gl_FragColor = vec4(lightIntensity * color, 1.0);
-}
-
-"""
+#
 
 EventDebounce = shoogl.util.EventDebounce
 GLSLValidator = shoogl.scene.validator.GLSLValidator
+DefaultShaders = shoogl.scene.default_shaders
 
 class namespace('shoogl.scene').ThreejsScene
   constructor: (@elem_root,
@@ -343,10 +249,13 @@ class namespace('shoogl.scene').ThreejsScene
         type: 'v3'
         value: new THREE.Vector3().copy(@_scene_light.position)
 
+    default_vertex_source = DefaultShaders.vertex[DefaultShaders.vertex._default]
+    default_fragment_source = DefaultShaders.fragment[DefaultShaders.fragment._default]
+
     shader_parameters =
       uniforms: @_uniforms
-      vertexShader: default_vertex_source
-      fragmentShader: default_fragment_source
+      vertexShader: default_vertex_source.code
+      fragmentShader: default_fragment_source.code
     @shader_material = new THREE.ShaderMaterial(shader_parameters)
 
     @phong_material = new THREE.MeshPhongMaterial({color:0x50C8FF})
