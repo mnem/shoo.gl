@@ -6,11 +6,14 @@
 #= require ace-builds/src-min/mode-glsl
 #= require ace-builds/src-min/theme-vibrant_ink
 #
-#= require scene/threejs_scene
-#= require util/event_debounce
+#= require shoogl/scene/threejs_scene
+#= require shoogl/util/event_debounce
 #
 
-class @ShaderLabApp
+ThreejsScene = shoogl.scene.ThreejsScene
+EventDebounce = shoogl.util.EventDebounce
+
+class namespace('shoogl.app').ShaderLabApp
   constructor: () ->
 
   start: () ->
@@ -75,11 +78,11 @@ class @ShaderLabApp
   _create_editors: () ->
     @editor_vertex = @_make_editor(@elem_editor_vertex)
     @editor_vertex.setValue(@threejs_scene.get_vertex_source(), -1)
-    @vertex_source_debounce = new EventDebounce(@editor_vertex, 'change', @_handle_source_change, 500)
+    @vertex_source_debounce = new shoogl.util.EventDebounce(@editor_vertex, 'change', @_handle_source_change, 500)
 
     @editor_fragment = @_make_editor(@elem_editor_fragment)
     @editor_fragment.setValue(@threejs_scene.get_fragment_source(), -1)
-    @fragment_source_debounce = new EventDebounce(@editor_fragment, 'change', @_handle_source_change, 500)
+    @fragment_source_debounce = new shoogl.util.EventDebounce(@editor_fragment, 'change', @_handle_source_change, 500)
 
   _make_editor: (element) ->
     editor = ace.edit element
