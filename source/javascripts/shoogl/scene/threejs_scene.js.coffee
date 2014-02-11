@@ -7,6 +7,8 @@
 #= require shoogl/scene/fonts/helvetiker_regular.typeface
 #= require shoogl/scene/validator/glsl_validator
 #= require shoogl/scene/default_shaders
+#= require shoogl/scene/scene_items
+#= require shoogl/scene/generators/uniform_generators
 #
 #= require shoogl/util/event_debounce
 #
@@ -14,6 +16,8 @@
 EventDebounce = shoogl.util.EventDebounce
 GLSLValidator = shoogl.scene.validator.GLSLValidator
 DefaultShaders = shoogl.scene.default_shaders
+SceneItems = shoogl.scene.SceneItems
+UniformGenerators = shoogl.scene.generators.UniformGenerators
 
 class namespace('shoogl.scene').ThreejsScene
   constructor: (@elem_root,
@@ -22,21 +26,24 @@ class namespace('shoogl.scene').ThreejsScene
                 @use_phong = false,
                 @clear_color = 0x000000) ->
     @_cached_clear_color = ~@clear_color
-
     @_model_cache = {}
     @_active_model = null
-
     @_showing_loading_indicator = false
     @_loading_indicator = null
-
     @_stats = new Stats()
 
-    @_uniforms = {}
-
     @_init_root()
+    @validator = new GLSLValidator(@renderer.getContext())
     @_create_basic_scene()
 
     $(@elem_root).append(@_stats.domElement)
+
+    @_scene_items = new SceneItems(
+      @elem_root,
+      @scene,
+      @camera,
+      @main_light)
+    @_uniform_generators = new UniformGenerators(@_scene_items)
 
     @on_validation_error = @_default_error_handler
     @on_validation_success = @_default_error_handler
@@ -49,7 +56,7 @@ class namespace('shoogl.scene').ThreejsScene
 
   update_shader: (shader_parameters) ->
     if @_validate_shader_parameters(shader_parameters)
-      shader_parameters.uniforms = @_uniforms
+      shader_parameters.uniforms = @_uniform_generators.generate()
       new_material = new THREE.ShaderMaterial(shader_parameters)
       @shader_material = new_material
 
@@ -114,8 +121,7 @@ class namespace('shoogl.scene').ThreejsScene
       @renderer.setClearColor(@clear_color, 1)
 
     if @light_linked_to_camera
-      @_scene_light.position.copy(@camera.position)
-      @_uniforms.lightWorldPosition.value.setFromMatrixPosition(@_scene_light.matrixWorld)
+      @main_light.position.copy(@camera.position)
 
     @controls.autoRotate = @animate_camera
 
@@ -123,6 +129,7 @@ class namespace('shoogl.scene').ThreejsScene
     if @use_phong
       material = @phong_material
     else
+      @_uniform_generators.generate(@shader_material.uniforms)
       material = @shader_material
 
     mesh = @_loading_indicator
@@ -146,8 +153,6 @@ class namespace('shoogl.scene').ThreejsScene
     @renderer = new THREE.WebGLRenderer()
     @renderer.setSize( width, height )
     $(@elem_root).append( @renderer.domElement )
-
-    @validator = new GLSLValidator(@renderer.getContext())
 
     @resize_debounce = new EventDebounce($(window), 'resize', @_handle_resize, 250)
 
@@ -239,21 +244,15 @@ class namespace('shoogl.scene').ThreejsScene
 
   _create_basic_lights: () ->
     cfg = threejs_config
-    @_scene_light = new THREE.DirectionalLight( cfg.light.color, cfg.light.intensity )
-    @_scene_light.position.copy(@camera.position)
-    @scene.add(@_scene_light)
+    @main_light = new THREE.DirectionalLight( cfg.light.color, cfg.light.intensity )
+    @main_light.position.copy(@camera.position)
+    @scene.add(@main_light)
 
   _create_basic_materials: () ->
-    @_uniforms =
-      lightWorldPosition :
-        type: 'v3'
-        value: new THREE.Vector3().copy(@_scene_light.position)
-
     default_vertex_source = DefaultShaders.vertex[DefaultShaders.vertex._default]
     default_fragment_source = DefaultShaders.fragment[DefaultShaders.fragment._default]
 
     shader_parameters =
-      uniforms: @_uniforms
       vertexShader: default_vertex_source.code
       fragmentShader: default_fragment_source.code
     @shader_material = new THREE.ShaderMaterial(shader_parameters)

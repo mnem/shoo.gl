@@ -1,6 +1,6 @@
-DefaultShaders = namespace('shoogl.scene.default_shaders')
+default_shaders = namespace('shoogl.scene.default_shaders')
 
-DefaultShaders.vertex =
+default_shaders.vertex =
   _default: "basic_projection"
 
   basic_projection:
@@ -22,13 +22,13 @@ DefaultShaders.vertex =
 
     '''
 
-DefaultShaders.fragment =
+default_shaders.fragment =
   _default: 'basic_lighting'
 
   basic_lighting:
     description: 'Simple shader which uses the position of 1 directional light to roughly shade the model'
     code: '''
-    uniform vec3 lightWorldPosition;
+    uniform vec3 uSceneMainLightPosition;
     varying vec3 vNormal;
     varying vec3 vViewPosition;
 
@@ -37,7 +37,7 @@ DefaultShaders.fragment =
 
       // Simplistic lighting, based around the phong code
       // in three.js, but without the fancy bits
-      vec4 lightPosition = viewMatrix * vec4( lightWorldPosition, 1.0 );
+      vec4 lightPosition = viewMatrix * vec4( uSceneMainLightPosition, 1.0 );
       vec3 lightVector = lightPosition.xyz + vViewPosition;
       lightVector = normalize( lightVector );
 
@@ -51,7 +51,7 @@ DefaultShaders.fragment =
   basic_cartoon:
     description: 'Basic cartoon style shader'
     code: '''
-    uniform vec3 lightWorldPosition;
+    uniform vec3 uSceneMainLightPosition;
     varying vec3 vNormal;
     varying vec3 vViewPosition;
 
@@ -77,7 +77,7 @@ DefaultShaders.fragment =
     void main() {
       // Simplistic lighting, based around the phong code
       // in three.js, but without the fancy bits
-      vec4 lightPosition = viewMatrix * vec4( lightWorldPosition, 1.0 );
+      vec4 lightPosition = viewMatrix * vec4( uSceneMainLightPosition, 1.0 );
       vec3 lightVector = lightPosition.xyz + vViewPosition;
       lightVector = normalize( lightVector );
 
