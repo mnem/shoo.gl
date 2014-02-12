@@ -1,0 +1,42 @@
+#view-variables {
+  overflow-y: scroll;
+}
+
+#view-variables ul {
+  list-style-type: none;
+}
+
+#view-variables h1 {
+  float: none;
+  font-variant: normal;
+  font-size: 1.0em;
+  font-weight: bold;
+  font-family: Helvetica,Arial;
+  background-color: transparent;
+  color: white;
+}
+
+#view-variables .number {
+  margin: 0;
+  padding: 0 1em 0 1em;
+}
+
+#view-variables .vector-component.x {
+  background-color: rgba(255,160,160,0.3);
+}
+
+#view-variables .vector-component.y {
+  background-color: rgba(160,255,160,0.3);
+}
+
+#view-variables .vector-component.z {
+  background-color: rgba(160,160,255,0.3);
+}
+
+// #view-variables .x {
+//   background-color: red;
+// }
+
+// #view-variables .x {
+//   background-color: red;
+// }

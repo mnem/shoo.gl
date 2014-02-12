@@ -84,6 +84,8 @@ class namespace('shoogl.app').ShaderLabApp
     @editor_fragment.setValue(@threejs_scene.get_fragment_source(), -1)
     @fragment_source_debounce = new shoogl.util.EventDebounce(@editor_fragment, 'change', @_handle_source_change, 500)
 
+    $(@elem_view_variables).append(@threejs_scene.uniform_generators.dom_element)
+
   _make_editor: (element) ->
     editor = ace.edit element
     editor.setTheme 'ace/theme/vibrant_ink'

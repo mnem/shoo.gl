@@ -43,7 +43,7 @@ class namespace('shoogl.scene').ThreejsScene
       @scene,
       @camera,
       @main_light)
-    @_uniform_generators = new UniformGenerators(@_scene_items)
+    @uniform_generators = new UniformGenerators(@_scene_items)
 
     @on_validation_error = @_default_error_handler
     @on_validation_success = @_default_error_handler
@@ -56,7 +56,7 @@ class namespace('shoogl.scene').ThreejsScene
 
   update_shader: (shader_parameters) ->
     if @_validate_shader_parameters(shader_parameters)
-      shader_parameters.uniforms = @_uniform_generators.generate()
+      shader_parameters.uniforms = @uniform_generators.generate()
       new_material = new THREE.ShaderMaterial(shader_parameters)
       @shader_material = new_material
 
@@ -129,7 +129,7 @@ class namespace('shoogl.scene').ThreejsScene
     if @use_phong
       material = @phong_material
     else
-      @_uniform_generators.generate(@shader_material.uniforms)
+      @uniform_generators.generate(@shader_material.uniforms)
       material = @shader_material
 
     mesh = @_loading_indicator
