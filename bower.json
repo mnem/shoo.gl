@@ -1,10 +1,37 @@
 {
-  "name": "shader-lab",
+  "name": "shoo.gl",
   "version": "0.0.0",
+  "homepage": "http://shoo.gl",
+  "description": "Shader Output Observer",
+  "main": "build/index.html",
+  "keywords": [
+    "webgl",
+    "shader",
+    "glsl",
+    "experiment",
+    "toy"
+  ],
+  "authors": [
+    "David Wagner"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
   "dependencies": {
-    "threejs": "4862f5f1111346a957ac3e0cb0858be1568d0e03",
-    "zepto": "~>1.1",
+    "threejs": "*",
+    "zepto": "~1.1.2",
     "ace-builds": "b2f8bf1e745250596afea5b39c70b94421af906d",
-    "stats.js": ""
+    "stats.js": "*"
+  },
+  "devDependencies": {
+    "qunit": "~1.14.0",
+    "sinon-qunit": "~1.0.0",
+    "sinon-builds": "~1.8.2"
   }
 }
