@@ -67,4 +67,4 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'mm-server', ['middleman:server']
   grunt.registerTask 'mm-build', ['middleman:build']
-  grunt.registerTask 'mm-deploy', ['clean', 'middleman:build', 'shell:middleman_deploy']
+  grunt.registerTask 'mm-deploy', ['clean:build', 'middleman:build', 'shell:middleman_deploy']

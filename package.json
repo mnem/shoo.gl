@@ -35,6 +35,7 @@
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-coffee": "~0.10.0",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-clear": "~0.2.1"
+    "grunt-clear": "~0.2.1",
+    "grunt-coffeelint": "0.0.8"
   }
 }
