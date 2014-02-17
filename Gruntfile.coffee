@@ -5,14 +5,16 @@ module.exports = (grunt) ->
   grunt.initConfig
     clean:
       build: [ 'build' ]
-      testing: [ 'build_testing', 'test/headless-tests.js' ]
-      clobber: [ 'build', 'build_testing', 'test/headless-tests.js', 'bower_components', 'node_modules', '.bundle' ]
+      testing: [ 'build_test', 'test/headless-tests.js' ]
+      clobber: [ 'build', 'build_test', 'test/headless-tests.js', 'bower_components', 'node_modules', '.bundle' ]
     coffee:
       test_subjects:
         options:
+          sourceMap: true
+          sourceMapDir: 'build_test/'
           join: true
         files:
-          "build_testing/app_coffescript_joined.js": "#{APP_SCRIPT_SOURCE}/**/*.coffee"
+          "build_test/app_coffeescript_joined.js": "#{APP_SCRIPT_SOURCE}/**/*.coffee"
       test_scripts:
         options:
           join: true
@@ -41,6 +43,10 @@ module.exports = (grunt) ->
       all: ['test/headless-runner.html']
     coffeelint:
       app: [ "#{APP_SCRIPT_SOURCE}/**/*.coffee" ]
+    watch:
+      scripts:
+        files: "**/*.coffee"
+        tasks: ['clear', 'test']
 
   grunt.loadNpmTasks 'grunt-shell'
   grunt.loadNpmTasks 'grunt-contrib-qunit'
@@ -49,9 +55,13 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
+  grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-clear'
 
   grunt.registerTask 'lint', ['coffeelint']
   grunt.registerTask 'test', ['clean:testing', 'coffee:test_subjects', 'coffee:test_scripts', 'qunit']
+  grunt.registerTask 'watch-test', ['watch:scripts']
+
 
   grunt.registerTask 'clobber', ['clean:clobber']
 

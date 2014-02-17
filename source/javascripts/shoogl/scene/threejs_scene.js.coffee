@@ -19,7 +19,8 @@ DefaultShaders = shoogl.scene.default_shaders
 SceneItems = shoogl.scene.SceneItems
 UniformGenerators = shoogl.scene.generators.UniformGenerators
 
-class namespace('shoogl.scene').ThreejsScene
+NS = namespace('shoogl.scene')
+class NS.ThreejsScene
   constructor: (@elem_root,
                 @animate_camera = false,
                 @light_linked_to_camera = true,
@@ -46,7 +47,7 @@ class namespace('shoogl.scene').ThreejsScene
     @uniform_generators = new UniformGenerators(@_scene_items)
 
     @on_validation_error = @_default_error_handler
-    @on_validation_success = @_default_error_handler
+    @on_validation_success = @_default_success_handler
 
   get_vertex_source: () ->
     return @shader_material.vertexShader

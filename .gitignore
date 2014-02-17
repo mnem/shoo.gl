@@ -29,5 +29,5 @@ node_modules
 # Ignore bower install packages
 bower_components/
 
-build_testing/
-test/**/*.js
+build_test/
+test/headless-tests.js
