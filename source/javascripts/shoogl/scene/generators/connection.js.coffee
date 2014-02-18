@@ -40,4 +40,12 @@ class NS.Connection
 
   copy_data: () ->
     if @connection_valid()
-      @input.in[@input_name] = @output.out[@output_name]
+      type_string = shoogl.scene.generators.TypeTools.type_string(@output_name)
+      if type_string == 'f'
+        @input.in[@input_name] = @output.out[@output_name]
+      else if type_string == 'vec2'
+        @input.in[@input_name].copy(@output.out[@output_name])
+      else if type_string == 'vec3'
+        @input.in[@input_name].copy(@output.out[@output_name])
+      else if type_string == 'vec4'
+        @input.in[@input_name].copy(@output.out[@output_name])
