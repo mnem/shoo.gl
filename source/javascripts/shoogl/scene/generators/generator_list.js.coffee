@@ -1,3 +1,7 @@
+#= require shoogl/scene/generators/connection
+#= require shoogl/scene/generators/type_tools
+#= require_tree ./standard
+
 NS = namespace('shoogl.scene.generators')
 class NS.GeneratorList
   constructor: (@title, css_classes...) ->

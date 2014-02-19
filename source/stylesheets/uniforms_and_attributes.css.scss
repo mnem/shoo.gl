@@ -2,11 +2,21 @@
   overflow-y: scroll;
 }
 
-#view-variables ul {
+div.generator-list > ul {
   list-style-type: none;
 }
 
-#view-variables h1 {
+div.generator-list > h1 {
+  float: none;
+  font-variant: normal;
+  font-size: 1.2em;
+  font-weight: bold;
+  font-family: Helvetica,Arial;
+  background-color: transparent;
+  color: white;
+}
+
+div.generator-list > ul h2 {
   float: none;
   font-variant: normal;
   font-size: 1.0em;
@@ -16,27 +26,19 @@
   color: white;
 }
 
-#view-variables .number {
+div.generator-list .number {
   margin: 0;
   padding: 0 1em 0 1em;
 }
 
-#view-variables .vector-component.x {
+div.generator-list .vec3 .x {
   background-color: rgba(255,160,160,0.3);
 }
 
-#view-variables .vector-component.y {
+div.generator-list .vec3 .y {
   background-color: rgba(160,255,160,0.3);
 }
 
-#view-variables .vector-component.z {
+div.generator-list .vec3 .z {
   background-color: rgba(160,160,255,0.3);
 }
-
-// #view-variables .x {
-//   background-color: red;
-// }
-
-// #view-variables .x {
-//   background-color: red;
-// }
