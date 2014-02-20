@@ -4,7 +4,7 @@ class NS.TextVector3Generator
     @in =
       value_string: '0 0 0'
     @out =
-      result_vec3: new THREE.Vector3(0, 0, 0)
+      result_v3: new THREE.Vector3(0, 0, 0)
     @name = "Vector3 generator"
     @description = "Generates a Vector3 "
 
@@ -19,4 +19,4 @@ class NS.TextVector3Generator
     y = Number(parts[1]) || 0
     z = Number(parts[2]) || 0
 
-    @out.result_vec3.set(x, y, z)
+    @out.result_v3.set(x, y, z)

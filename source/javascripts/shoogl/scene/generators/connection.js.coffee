@@ -43,9 +43,9 @@ class NS.Connection
       type_string = shoogl.scene.generators.TypeTools.type_string(@output_name)
       if type_string == 'f'
         @input.in[@input_name] = @output.out[@output_name]
-      else if type_string == 'vec2'
+      else if type_string == 'v2'
         @input.in[@input_name].copy(@output.out[@output_name])
-      else if type_string == 'vec3'
+      else if type_string == 'v3'
         @input.in[@input_name].copy(@output.out[@output_name])
-      else if type_string == 'vec4'
+      else if type_string == 'v4'
         @input.in[@input_name].copy(@output.out[@output_name])

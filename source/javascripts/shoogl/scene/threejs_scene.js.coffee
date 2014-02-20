@@ -52,7 +52,7 @@ class NS.ThreejsScene
     generator = new shoogl.scene.generators.standard.Object3DPositionGenerator()
     generator.in.source_object3d = @main_light
     @uniform_generators.add "uSceneMainLightPosition",
-      generator, 'result_vec3'
+      generator, 'result_v3'
 
     @on_validation_error = @_default_error_handler
     @on_validation_success = @_default_success_handler

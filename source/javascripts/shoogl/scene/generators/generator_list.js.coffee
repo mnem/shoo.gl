@@ -43,7 +43,7 @@ class NS.GeneratorList
     type_string = shoogl.scene.generators.TypeTools.type_string(generator_output)
     if type_string == 'f'
       output = new shoogl.scene.generators.standard.FloatDomOutputGenerator()
-    else if type_string == 'vec3'
+    else if type_string == 'v3'
       output = new shoogl.scene.generators.standard.Vector3DomOutputGenerator()
     else
       console.error "Cannot show output for #{generator_output}"

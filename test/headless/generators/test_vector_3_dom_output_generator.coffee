@@ -7,13 +7,13 @@ test 'Value is zeroed after creation', () ->
 
 test 'Short value is correct for each component', () ->
   subject = new shoogl.scene.generators.standard.Vector3DomOutputGenerator()
-  subject.in.value_vec3.set(1.2345, 9.8765, 4.5678)
+  subject.in.value_v3.set(1.2345, 9.8765, 4.5678)
   subject.update()
   equal $(subject.out.output_dom).text(), '1.23459.87654.5678'
 
 test 'Mouseover value is correct for each component', () ->
   subject = new shoogl.scene.generators.standard.Vector3DomOutputGenerator()
-  subject.in.value_vec3.set(1.234567, 9.876543, 4.567899)
+  subject.in.value_v3.set(1.234567, 9.876543, 4.567899)
   $(subject._x_span).trigger 'mouseover'
   subject.update()
   equal $(subject.out.output_dom).text(), '1.2345679.87654.5679'

@@ -2,9 +2,9 @@ NS = namespace('shoogl.scene.generators.standard')
 class NS.Vector3DomOutputGenerator
   constructor: () ->
     @in =
-      value_vec3: new THREE.Vector3(0, 0, 0)
+      value_v3: new THREE.Vector3(0, 0, 0)
 
-    container = $('<span class="vec3"></span>')
+    container = $('<span class="threetype-v3"></span>')
     @_x_span = @_make_component_dom('x', 'r', 'number')
     @_y_span = @_make_component_dom('y', 'g', 'number')
     @_z_span = @_make_component_dom('z', 'b', 'number')
@@ -17,11 +17,11 @@ class NS.Vector3DomOutputGenerator
     @description = "DOM element which displays a float value"
 
   update: () ->
-    return unless @in?.value_vec3?
+    return unless @in?.value_v3?
 
-    @_format_value @in.value_vec3.x, @_x_span
-    @_format_value @in.value_vec3.y, @_y_span
-    @_format_value @in.value_vec3.z, @_z_span
+    @_format_value @in.value_v3.x, @_x_span
+    @_format_value @in.value_v3.y, @_y_span
+    @_format_value @in.value_v3.z, @_z_span
 
   _format_value: (value, element) ->
     if $(element).hasClass 'mouseover'

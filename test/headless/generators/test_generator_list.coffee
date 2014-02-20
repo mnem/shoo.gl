@@ -124,21 +124,21 @@ test 'Three type object is correct with vec3 generator', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
   generator_a = new shoogl.scene.generators.standard.TextVector3Generator()
   generator_a.in.value_string = '1 2 3'
-  subject.add "uPosition", generator_a, 'result_vec3'
+  subject.add "uPosition", generator_a, 'result_v3'
   subject.update()
 
   three_object = subject.to_three_type_object()
 
   deepEqual three_object,
     uPosition:
-      type: 'vec3'
+      type: 'v3'
       value: new THREE.Vector3(1, 2, 3)
 
 test 'Three type object is correct with more than 1 generator', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
   generator_a = new shoogl.scene.generators.standard.TextVector3Generator()
   generator_a.in.value_string = '1 2 3'
-  subject.add "uPosition", generator_a, 'result_vec3'
+  subject.add "uPosition", generator_a, 'result_v3'
   generator_b = new shoogl.scene.generators.standard.SineGenerator()
   subject.add "uSine", generator_b, 'result_f'
   subject.update()
@@ -150,7 +150,7 @@ test 'Three type object is correct with more than 1 generator', () ->
       type: 'f'
       value: 0
     uPosition:
-      type: 'vec3'
+      type: 'v3'
       value: new THREE.Vector3(1, 2, 3)
 
 test 'Three type object the same object each time it is requests', () ->
@@ -158,7 +158,7 @@ test 'Three type object the same object each time it is requests', () ->
 
   generator_a = new shoogl.scene.generators.standard.TextVector3Generator()
   generator_a.in.value_string = '1 2 3'
-  subject.add "uPosition", generator_a, 'result_vec3'
+  subject.add "uPosition", generator_a, 'result_v3'
   subject.update()
   three_object_a = subject.to_three_type_object()
 
