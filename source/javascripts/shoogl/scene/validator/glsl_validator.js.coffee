@@ -1,4 +1,5 @@
-class namespace('shoogl.scene.validator').GLSLValidator
+NS = namespace('shoogl.scene.validator')
+class NS.GLSLValidator
   constructor: (gl_context) ->
     throw new Error('GLSLValidator must be created with a valid WebGL context') unless gl_context?
     @gl = gl_context

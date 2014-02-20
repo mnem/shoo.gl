@@ -8,7 +8,7 @@
 #= require shoogl/scene/validator/glsl_validator
 #= require shoogl/scene/default_shaders
 #= require shoogl/scene/scene_items
-#= require shoogl/scene/generators/uniform_generators
+#= require shoogl/scene/generators/generator_list
 #
 #= require shoogl/util/event_debounce
 #
@@ -17,9 +17,9 @@ EventDebounce = shoogl.util.EventDebounce
 GLSLValidator = shoogl.scene.validator.GLSLValidator
 DefaultShaders = shoogl.scene.default_shaders
 SceneItems = shoogl.scene.SceneItems
-UniformGenerators = shoogl.scene.generators.UniformGenerators
 
-class namespace('shoogl.scene').ThreejsScene
+NS = namespace('shoogl.scene')
+class NS.ThreejsScene
   constructor: (@elem_root,
                 @animate_camera = false,
                 @light_linked_to_camera = true,
@@ -43,10 +43,19 @@ class namespace('shoogl.scene').ThreejsScene
       @scene,
       @camera,
       @main_light)
-    @_uniform_generators = new UniformGenerators(@_scene_items)
+    @uniform_generators = new shoogl.scene.generators.GeneratorList('Uniforms')
+    @uniform_generators.add "uTime",
+      new shoogl.scene.generators.standard.TimeGenerator(), 'seconds_f'
+    @uniform_generators.add "uTimeSine",
+      new shoogl.scene.generators.standard.TimeGenerator(), 'seconds_f:value_f',
+      new shoogl.scene.generators.standard.SineGenerator(), 'result_f'
+    generator = new shoogl.scene.generators.standard.Object3DPositionGenerator()
+    generator.in.source_object3d = @main_light
+    @uniform_generators.add "uSceneMainLightPosition",
+      generator, 'result_v3'
 
     @on_validation_error = @_default_error_handler
-    @on_validation_success = @_default_error_handler
+    @on_validation_success = @_default_success_handler
 
   get_vertex_source: () ->
     return @shader_material.vertexShader
@@ -56,7 +65,8 @@ class namespace('shoogl.scene').ThreejsScene
 
   update_shader: (shader_parameters) ->
     if @_validate_shader_parameters(shader_parameters)
-      shader_parameters.uniforms = @_uniform_generators.generate()
+      shader_parameters.uniforms = @uniform_generators.to_three_type_object()
+      console.log "shader_parameters.uniforms", shader_parameters.uniforms
       new_material = new THREE.ShaderMaterial(shader_parameters)
       @shader_material = new_material
 
@@ -129,7 +139,8 @@ class namespace('shoogl.scene').ThreejsScene
     if @use_phong
       material = @phong_material
     else
-      @_uniform_generators.generate(@shader_material.uniforms)
+      @uniform_generators.update()
+      @shader_material.uniforms = @uniform_generators.to_three_type_object()
       material = @shader_material
 
     mesh = @_loading_indicator

@@ -1,5 +1,6 @@
 @charset "utf-8";
 @import "models-selector";
+@import "uniforms_and_attributes";
 
 html, body {
   background-color: rgb(47,49,41);
@@ -15,6 +16,7 @@ html, body {
   width: 50%;
   height: 50%;
   overflow: hidden;
+  background-color: black;
 }
 
 .tile-header {
