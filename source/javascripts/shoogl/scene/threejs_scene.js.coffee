@@ -43,7 +43,7 @@ class NS.ThreejsScene
       @scene,
       @camera,
       @main_light)
-    @uniform_generators = new shoogl.scene.generators.GeneratorList('Uniforms Foo')
+    @uniform_generators = new shoogl.scene.generators.GeneratorList('Uniforms')
     @uniform_generators.add "uTime",
       new shoogl.scene.generators.standard.TimeGenerator(), 'seconds_f'
     @uniform_generators.add "uTimeSine",
