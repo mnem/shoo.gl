@@ -62,6 +62,16 @@ class NS.GeneratorList
       connectors: connectors
       generator: generator
       generator_output: generator_output
+      generator_type: type_string
+
+  to_three_type_object: () ->
+    @_three_typed_object ||= {}
+    for item in @_items
+      @_three_typed_object[item.name] =
+        type: item.generator_type
+        value: item.generator.out[item.generator_output]
+
+    return @_three_typed_object
 
   update: () ->
     for item in @_items

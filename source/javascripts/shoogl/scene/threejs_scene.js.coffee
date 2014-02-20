@@ -65,7 +65,8 @@ class NS.ThreejsScene
 
   update_shader: (shader_parameters) ->
     if @_validate_shader_parameters(shader_parameters)
-      # shader_parameters.uniforms = @uniform_generators.generate()
+      shader_parameters.uniforms = @uniform_generators.to_three_type_object()
+      console.log "shader_parameters.uniforms", shader_parameters.uniforms
       new_material = new THREE.ShaderMaterial(shader_parameters)
       @shader_material = new_material
 
@@ -138,7 +139,8 @@ class NS.ThreejsScene
     if @use_phong
       material = @phong_material
     else
-      @uniform_generators.update() # @shader_material.uniforms
+      @uniform_generators.update()
+      @shader_material.uniforms = @uniform_generators.to_three_type_object()
       material = @shader_material
 
     mesh = @_loading_indicator
