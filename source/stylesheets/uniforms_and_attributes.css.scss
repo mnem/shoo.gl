@@ -3,6 +3,8 @@
 }
 
 div.generator-list > ul {
+  margin: 0.5em 1.5em;
+  padding: 0;
   list-style-type: none;
 }
 
@@ -17,6 +19,8 @@ div.generator-list > h1 {
 }
 
 div.generator-list > ul h2 {
+  margin: 0;
+  padding: 0;
   float: none;
   font-variant: normal;
   font-size: 1.0em;
@@ -31,14 +35,32 @@ div.generator-list .number {
   padding: 0 1em 0 1em;
 }
 
-div.generator-list .threetype-v3 .x {
+div.generator-list .index + .number {
+  margin: 0;
+  padding: 0 1em 0 0.2em;
+}
+
+div.generator-list .index {
+  margin: 1px;
+  padding: 0;
+  font-size: 0.5em;
+  color: white;
+  font-style: italic;
+  font-weight: lighter;
+}
+
+div.generator-list .threetype-v .x {
   background-color: rgba(255,160,160,0.3);
 }
 
-div.generator-list .threetype-v3 .y {
+div.generator-list .threetype-v .y {
   background-color: rgba(160,255,160,0.3);
 }
 
-div.generator-list .threetype-v3 .z {
+div.generator-list .threetype-v .z {
   background-color: rgba(160,160,255,0.3);
+}
+
+div.generator-list .threetype-v .w {
+  background-color: rgba(255,255,255,0.3);
 }

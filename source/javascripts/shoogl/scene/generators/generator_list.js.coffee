@@ -1,6 +1,7 @@
-#= require shoogl/scene/generators/connection
+#= require shoogl/scene/generators/faux/connection
 #= require shoogl/scene/generators/type_tools
 #= require_tree ./standard
+#= require_tree ./faux
 
 NS = namespace('shoogl.scene.generators')
 class NS.GeneratorList
@@ -19,50 +20,70 @@ class NS.GeneratorList
   # must appear in generator, 'output_name'
   # pairs.
   add: (name, generator_chain...) ->
-    return unless name
-    return unless generator_chain?.length >= 2
-    return unless (generator_chain.length & 1) == 0
+    return unless name and generator_chain.length >= 1
 
     connectors = []
 
-    # Connect each generator pair
-    while generator_chain.length > 2
-      generator = generator_chain.shift()
-      generator_output = generator_chain.shift()
-      connection_fields = generator_output.split ':'
-      if connection_fields.length == 1
-        connection_fields.push connection_fields[0]
-      connector = new shoogl.scene.generators.Connection(generator, connection_fields[0], generator_chain[0], connection_fields[1])
-      connectors.push(connector)
+    CON = shoogl.scene.generators.faux.Connection
 
-    # Connect the final (or first) generator to
-    # a dom output
-    generator = generator_chain.shift()
-    generator_output = generator_chain.shift()
-    output = null
-    type_string = shoogl.scene.generators.TypeTools.type_string(generator_output)
-    if type_string == 'f'
-      output = new shoogl.scene.generators.standard.FloatDomOutputGenerator()
-    else if type_string == 'v3'
-      output = new shoogl.scene.generators.standard.Vector3DomOutputGenerator()
+    forced_connections = []
+    generator_a = generator_chain[generator_chain.length - 1]
+    generator_b = null
+    if generator_chain.length >= 2
+      for i in [0...(generator_chain.length - 1)]
+        if typeof(generator_chain[i]) != 'string'
+          generator_a = generator_chain[i]
+
+        if typeof(generator_chain[i + 1]) == 'string'
+          forced_connections.push generator_chain[i + 1]
+        else
+          generator_b = generator_chain[i + 1]
+          connector = new CON(generator_a, generator_b, forced_connections...)
+          connectors.push(connector)
+          forced_connections.length = 0
+
+    if typeof(generator_chain[generator_chain.length - 1]) == 'string'
+      forced_connections.push(generator_chain[generator_chain.length - 1])
     else
-      console.error "Cannot show output for #{generator_output}"
+      generator_a = generator_chain[generator_chain.length - 1]
+
+    generator_b = null
+
+    TT = shoogl.scene.generators.TypeTools
+    generator_f_output = TT.first_generator_output(generator_a, 'f')
+    generator_v3_output = TT.first_generator_output(generator_a, 'v3')
+    if generator_f_output
+      if TT.is_array(generator_a.out[generator_f_output])
+        generator_b = new shoogl.scene.generators.standard.FloatArrayDomOutputGenerator()
+      else
+        generator_b = new shoogl.scene.generators.standard.FloatDomOutputGenerator()
+    else if generator_v3_output
+      generator_b = new shoogl.scene.generators.standard.Vector3DomOutputGenerator()
+    else
+      console.error "Cannot show output for #{generator_a.name}", generator_a
+      console.log "Cannot show output for #{generator_a.name}", generator_a
 
     dom_output = $("<li><h2>#{name}</h2></li>")
 
-    if output?
-      connector = new shoogl.scene.generators.Connection(generator, generator_output, output, "value_#{type_string}")
-      connectors.push connector
-      $(dom_output).append output.out.output_dom
+    if generator_b?
+      connector = new CON(generator_a, generator_b, forced_connections...)
+      connectors.push(connector)
+      $(dom_output).append generator_b.out.output_dom
 
     $(@_dom_list).append dom_output
 
     @_items.push
       name: name
       connectors: connectors
-      generator: generator
-      generator_output: generator_output
-      generator_type: type_string
+      generator: generator_a
+      generator_output: generator_f_output or generator_v3_output
+      generator_type: TT.type_string(generator_f_output or generator_v3_output)
+
+  find: (name) ->
+    for item in @_items
+      if item.name == name and item.connectors.length > 0
+        return item.connectors[0]
+    return null
 
   to_three_type_object: () ->
     @_three_typed_object ||= {}
