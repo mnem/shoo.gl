@@ -1,0 +1,1 @@
+window.namespace=function(n){for(var r=n.split("."),a=window,e=0;e<r.length;e++){var i=r[e];a[i]=a[i]||{},a=a[i]}return a};

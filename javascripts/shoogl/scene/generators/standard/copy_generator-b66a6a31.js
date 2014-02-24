@@ -1,0 +1,1 @@
+(function(){var t;t=namespace("shoogl.scene.generators.standard"),t.CopyGenerator=function(){function t(){this["in"]={value_f:0},this.out={value_f:0},this.name="Copy generator",this.description="Copies a value"}return t.prototype.update=function(){return this.out.value_f=this["in"].value_f},t}()}).call(this);

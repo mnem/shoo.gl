@@ -1,0 +1,1 @@
+(function(){var n;n=namespace("shoogl.scene.generators.standard"),n.TimeGenerator=function(){function n(){this["in"]={},this.out={seconds_f:0},this.name="Time generator",this.description="Seconds since 1 January 1970 00:00:00 UTC."}return n.prototype.update=function(){return this.out.seconds_f=Date.now()/1e3},n}()}).call(this);

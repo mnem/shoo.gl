@@ -1,0 +1,1 @@
+(function(){namespace("shoogl.scene").SceneItems=function(){function e(e,n,t,i){this.threejs_container=e,this.scene=n,this.camera=t,this.main_light=i}return e}()}).call(this);
