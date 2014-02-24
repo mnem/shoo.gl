@@ -43,16 +43,9 @@ class NS.ThreejsScene
       @scene,
       @camera,
       @main_light)
-    @uniform_generators = new shoogl.scene.generators.GeneratorList('Uniforms')
-    @uniform_generators.add "uTime",
-      new shoogl.scene.generators.standard.TimeGenerator(), 'seconds_f'
-    @uniform_generators.add "uTimeSine",
-      new shoogl.scene.generators.standard.TimeGenerator(), 'seconds_f:value_f',
-      new shoogl.scene.generators.standard.SineGenerator(), 'result_f'
-    generator = new shoogl.scene.generators.standard.Object3DPositionGenerator()
-    generator.in.source_object3d = @main_light
-    @uniform_generators.add "uSceneMainLightPosition",
-      generator, 'result_v3'
+
+    @create_standard_generator_list()
+    @create_standard_attribute_list()
 
     @on_validation_error = @_default_error_handler
     @on_validation_success = @_default_success_handler
@@ -65,8 +58,6 @@ class NS.ThreejsScene
 
   update_shader: (shader_parameters) ->
     if @_validate_shader_parameters(shader_parameters)
-      shader_parameters.uniforms = @uniform_generators.to_three_type_object()
-      console.log "shader_parameters.uniforms", shader_parameters.uniforms
       new_material = new THREE.ShaderMaterial(shader_parameters)
       @shader_material = new_material
 
@@ -105,12 +96,37 @@ class NS.ThreejsScene
     if not new_model?
       new_model = @_fetch_model(model_path)
 
+
     @scene.add(new_model.container)
 
   warm_model_cache: (model_paths) ->
     for model_path in model_paths
       console.log "Prefetching model: ", model_path
       @_fetch_model(model_path)
+
+  create_standard_generator_list: () ->
+    NS_gen = shoogl.scene.generators.standard
+
+    @uniform_generators = new shoogl.scene.generators.GeneratorList('Uniforms')
+    @uniform_generators.add "uTime", new NS_gen.TimeGenerator()
+    @uniform_generators.add "uTimeSine", new NS_gen.TimeGenerator(), ':value_f', new NS_gen.SineGenerator()
+
+    generator = new NS_gen.Object3DPositionGenerator()
+    generator.in.source_object3d = @main_light
+
+    @uniform_generators.add "uSceneMainLightPosition", generator
+
+  create_standard_attribute_list: () ->
+    NS_gen = shoogl.scene.generators.standard
+    NS_faux = shoogl.scene.generators.faux
+
+    @attribute_generators = new shoogl.scene.generators.GeneratorList('Attributes')
+
+    map = new NS_faux.VertexIndexMap(new NS_gen.RandomGenerator())
+    @attribute_generators.add "aRandom", map
+
+    map = new NS_faux.VertexIndexMap(new NS_gen.CopyGenerator())
+    @attribute_generators.add "aVertexIndex", map
 
   _fetch_model: (model_path) ->
     new_model =
@@ -141,7 +157,15 @@ class NS.ThreejsScene
     else
       @uniform_generators.update()
       @shader_material.uniforms = @uniform_generators.to_three_type_object()
+
+      @attribute_generators.update()
+      aRandomGen = @attribute_generators.find('aRandom')
+      @attribute_generators.find('aRandom').in.source_geometry = @_geometry
+      @attribute_generators.find('aVertexIndex').in.source_geometry = @_geometry
+      @shader_material.attributes = @attribute_generators.to_three_type_object()
+
       material = @shader_material
+      material.needsUpdate = true
 
     mesh = @_loading_indicator
     if @_model_cache[@_active_model]? and @_model_cache[@_active_model].mesh?
@@ -149,8 +173,10 @@ class NS.ThreejsScene
         @_showing_loading_indicator = false
         @scene.remove(@_loading_indicator)
       mesh = @_model_cache[@_active_model].mesh
+      @_geometry = mesh.geometry
     else if not @_showing_loading_indicator
       @_showing_loading_indicator = true
+      @_geometry = @_loading_indicator.geometry
       @scene.add(@_loading_indicator)
 
     mesh.material = material if mesh.material != material

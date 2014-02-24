@@ -4,7 +4,9 @@ class NS.Vector3DomOutputGenerator
     @in =
       value_v3: new THREE.Vector3(0, 0, 0)
 
-    container = $('<span class="threetype-v3"></span>')
+    container = $('<span></span>')
+    $(container).addClass 'threetype-v threetype-v3'
+
     @_x_span = @_make_component_dom('x', 'r', 'number')
     @_y_span = @_make_component_dom('y', 'g', 'number')
     @_z_span = @_make_component_dom('z', 'b', 'number')
@@ -29,7 +31,7 @@ class NS.Vector3DomOutputGenerator
     else
       value_string = value.toFixed(4)
 
-    $(element).text value_string
+    $(element).text "#{value_string} "
 
   _make_component_dom: (css_classes...) ->
     dom = $('<span></span>')

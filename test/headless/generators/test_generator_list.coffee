@@ -14,7 +14,7 @@ test 'List dom is correct after adding 1 generator', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
   generator_a = new shoogl.scene.generators.standard.CosineGenerator()
   equal generator_a.out.result_f, 0.0
-  subject.add "uCosine", generator_a, 'result_f'
+  subject.add "uCosine", generator_a
   subject.update()
   equal generator_a.out.result_f, 1.0
   equal $(subject.dom).text(), 'UniformsuCosine1.0000'
@@ -24,11 +24,11 @@ test 'List dom is correct after adding 2 generators', () ->
 
   generator_a = new shoogl.scene.generators.standard.CosineGenerator()
   equal generator_a.out.result_f, 0.0
-  subject.add "uCosine", generator_a, 'result_f'
+  subject.add "uCosine", generator_a
 
   generator_b = new shoogl.scene.generators.standard.SineGenerator()
   equal generator_b.out.result_f, 0.0
-  subject.add "uSine", generator_b, 'result_f'
+  subject.add "uSine", generator_b
 
   subject.update()
 
@@ -41,11 +41,11 @@ test 'List dom is correct after adding 2 generators in reverse order', () ->
 
   generator_a = new shoogl.scene.generators.standard.SineGenerator()
   equal generator_a.out.result_f, 0.0
-  subject.add "uSine", generator_a, 'result_f'
+  subject.add "uSine", generator_a
 
   generator_b = new shoogl.scene.generators.standard.CosineGenerator()
   equal generator_b.out.result_f, 0.0
-  subject.add "uCosine", generator_b, 'result_f'
+  subject.add "uCosine", generator_b
 
   subject.update()
 
@@ -59,9 +59,7 @@ test 'List dom is correct after adding 1 generator chain', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
   generator_a = new shoogl.scene.generators.standard.TimeGenerator()
   generator_b = new shoogl.scene.generators.standard.SineGenerator()
-  subject.add "uTimeSine",
-    generator_a, 'seconds_f:value_f',
-    generator_b, 'result_f'
+  subject.add "uTimeSine", generator_a, ':value_f', generator_b
 
   subject.update()
   equal generator_b.out.result_f, 0.0
@@ -81,15 +79,11 @@ test 'List dom is correct after adding 2 generator chains', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
   generator_a = new shoogl.scene.generators.standard.TimeGenerator()
   generator_b = new shoogl.scene.generators.standard.SineGenerator()
-  subject.add "uTimeSine",
-    generator_a, 'seconds_f:value_f',
-    generator_b, 'result_f'
+  subject.add "uTimeSine", generator_a, ':value_f', generator_b
 
   generator_a = new shoogl.scene.generators.standard.TimeGenerator()
   generator_b = new shoogl.scene.generators.standard.SineGenerator()
-  subject.add "uTimeSineTwo",
-    generator_a, 'seconds_f:value_f',
-    generator_b, 'result_f'
+  subject.add "uTimeSineTwo", generator_a, ':value_f', generator_b
 
   subject.update()
   equal $(subject.dom).text(), 'UniformsuTimeSine0.0000uTimeSineTwo0.0000'
@@ -110,7 +104,7 @@ test 'Three type object is correct when empty', () ->
 test 'Three type object is correct with float generator', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
   generator_a = new shoogl.scene.generators.standard.SineGenerator()
-  subject.add "uSine", generator_a, 'result_f'
+  subject.add "uSine", generator_a
   subject.update()
 
   three_object = subject.to_three_type_object()
@@ -124,7 +118,7 @@ test 'Three type object is correct with vec3 generator', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
   generator_a = new shoogl.scene.generators.standard.TextVector3Generator()
   generator_a.in.value_string = '1 2 3'
-  subject.add "uPosition", generator_a, 'result_v3'
+  subject.add "uPosition", generator_a
   subject.update()
 
   three_object = subject.to_three_type_object()
@@ -136,11 +130,13 @@ test 'Three type object is correct with vec3 generator', () ->
 
 test 'Three type object is correct with more than 1 generator', () ->
   subject = new shoogl.scene.generators.GeneratorList('Uniforms')
+
   generator_a = new shoogl.scene.generators.standard.TextVector3Generator()
   generator_a.in.value_string = '1 2 3'
-  subject.add "uPosition", generator_a, 'result_v3'
+  subject.add "uPosition", generator_a
+
   generator_b = new shoogl.scene.generators.standard.SineGenerator()
-  subject.add "uSine", generator_b, 'result_f'
+  subject.add "uSine", generator_b
   subject.update()
 
   three_object = subject.to_three_type_object()
@@ -158,14 +154,28 @@ test 'Three type object the same object each time it is requests', () ->
 
   generator_a = new shoogl.scene.generators.standard.TextVector3Generator()
   generator_a.in.value_string = '1 2 3'
-  subject.add "uPosition", generator_a, 'result_v3'
+  subject.add "uPosition", generator_a
   subject.update()
   three_object_a = subject.to_three_type_object()
 
   generator_b = new shoogl.scene.generators.standard.SineGenerator()
-  subject.add "uSine", generator_b, 'result_f'
+  subject.add "uSine", generator_b
   subject.update()
   three_object_b = subject.to_three_type_object()
 
   strictEqual three_object_a, three_object_b
   deepEqual three_object_a, three_object_b
+
+test 'Finding an existing generator works', () ->
+  subject = new shoogl.scene.generators.GeneratorList('Uniforms')
+  generator_a = new shoogl.scene.generators.standard.SineGenerator()
+  subject.add "uSine", generator_a
+
+  generator_b = new shoogl.scene.generators.standard.CosineGenerator()
+  subject.add "uCosine", generator_b
+
+  found = subject.find "uSine"
+  equal found.output, generator_a
+
+  found = subject.find "uCosine"
+  equal found.output, generator_b
